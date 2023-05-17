@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
+import './assets/index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import {
@@ -10,6 +10,7 @@ import {
 
 // other pages
 import Login from './pages/Login';
+import About from './pages/About';
 
 // router configuration
 const router = createBrowserRouter([
@@ -20,6 +21,11 @@ const router = createBrowserRouter([
       {
         path: "/login",
         element: <Login />
+      },
+      {
+        /* show about page when the path is empty */
+        path: "/",
+        element: <About />
       }
     ],
   },

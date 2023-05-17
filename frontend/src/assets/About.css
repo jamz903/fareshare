@@ -1,0 +1,23 @@
+.About-container {
+    align-items: center;
+    justify-content: center;
+    padding-left: 20vmin;
+    padding-right: 20vmin;
+    padding-top: 10vmin;
+}
+
+.About-desc {
+    align-items: center;
+    justify-content: center;
+    text-align: justify;
+}
+
+.About-item {
+    padding-bottom: 20px;
+}
+
+.About-link {
+    color: green;
+    text-decoration: none;
+}
+
