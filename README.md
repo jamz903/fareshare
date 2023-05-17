@@ -16,3 +16,21 @@ _(please make sure you have django installed)_
 ```
 python3 manage.py runserver
 ```
+
+for the tesseract model dependencies, they are installed in virtual env _venv_
+use this command to activate the virutal environment to install more dependencies:
+
+```
+pip install virtualenv
+cd backend
+virtualenv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+to update the requirements.txt after more packages are installed (in the backend directory):
+
+```
+pip freeze > requirements.txt
+git add requirements.txt
+```
