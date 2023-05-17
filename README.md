@@ -20,8 +20,9 @@ python3 manage.py runserver
 for the tesseract model dependencies, they are installed in virtual env _venv_
 use this command to activate the virutal environment to install more dependencies:
 
+_(please make sure you have virtualenv installed)_
+
 ```
-pip install virtualenv
 cd backend
 virtualenv venv
 source venv/bin/activate
@@ -32,5 +33,6 @@ to update the requirements.txt after more packages are installed (in the backend
 
 ```
 pip freeze > requirements.txt
-git add requirements.txt
+deactivate
 ```
+_note: remember to run these commands while you are still in the virtual env_
