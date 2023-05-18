@@ -11,3 +11,41 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/* this makes padding included in width and height calculation */
+* {
+  box-sizing: border-box;
+}
+
+/* ensures content is placed in the center of the page, with an appropriate width. */
+.body-content-container {
+  padding-left: 20vmin;
+  padding-right: 20vmin;
+  padding-top: 5vmin;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+/* only works for layouts that support gap, e.g. flex */
+.gap {
+  gap: 10px; 
+}
+
+.button {
+  max-width: 300px;
+  color: green;
+  text-decoration: none;
+  font-size: 16px;
+  border: none;
+  background-color: transparent;
+}

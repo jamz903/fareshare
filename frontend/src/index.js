@@ -10,6 +10,7 @@ import {
 
 // other pages
 import Login from './pages/Login';
+import Register from './pages/Register';
 import About from './pages/About';
 
 // router configuration
@@ -21,6 +22,11 @@ const router = createBrowserRouter([
       {
         path: "/login",
         element: <Login />
+      },
+      {
+        /* register page */
+        path: "/Register",
+        element: <Register />
       },
       {
         /* show about page when the path is empty */
