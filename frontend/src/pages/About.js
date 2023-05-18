@@ -9,8 +9,8 @@ export default function About() {
         automatically split bills and at the same time track their 
         expenditure in the most efficient and effortless way possible.
       </div>
-      <Link className="About-item About-link" to="/Login">Login</Link>
-      <Link className="About-item About-link" to="/Register">New user? Register</Link>
+      <Link className="About-item About-link" to="/login">Login</Link>
+      <Link className="About-item About-link" to="/register">New user? Register</Link>
     </div>
   );
 }
