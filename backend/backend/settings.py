@@ -61,7 +61,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            os.path.join(BASE_DIR,'frontend','build'), # this is the path to the frontend build folder
+            os.path.join(BASE_DIR,'build'), # this is the path to the frontend build folder
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -125,7 +125,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR,'frontend','build','static') # frontend build static folder
+    os.path.join(BASE_DIR,'build','static') # frontend build static folder
 ]
 STATIC_ROOT = os.path.join(BASE_DIR,'static') # main folder for static files
 
@@ -135,7 +135,11 @@ STATIC_ROOT = os.path.join(BASE_DIR,'static') # main folder for static files
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # this is for the corsheaders package, to prevent errors
+# important to add trusted domains here
 CORS_ORIGIN_WHITELIST = [
+    'http://localhost:3000'
+]
+CSRF_TRUSTED_ORIGINS = [
     'http://localhost:3000'
 ]
 
