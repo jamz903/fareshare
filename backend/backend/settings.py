@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-s@2lgl42)=_t$jxi5(=es!16&qmje!oyvo0xe&=zu&v!08q&5o
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'accounts', #accounts app handles user authentication
-    'fareshare', #app name
+    'ocr', #app name
 ]
 
 MIDDLEWARE = [
