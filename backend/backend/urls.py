@@ -18,16 +18,17 @@ from django.contrib import admin
 from django.urls import path, include, re_path
 from django.views.generic import TemplateView
 from rest_framework import routers
-from fareshare import views
+from ocr import views
 
 router = routers.DefaultRouter()
-router.register(r'users', views.RegisterView, 'fareshare')
+#router.register(r'users', views.RegisterView, 'ocr')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('auth-api/', include('rest_framework.urls')),
     path('accounts/', include('accounts.urls')),
     path('api/', include(router.urls)),
+    path('ocr/', include('ocr.urls')),
 ]
 
 # catch all url path for react router
