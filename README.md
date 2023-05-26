@@ -50,7 +50,7 @@ _note: remember to run these commands while you are still in the virtual env_
 
 ### Project Log
 | S/n | Task              | Date | Hours | Remarks | Done By |
-| --- | ----------------- | ---- | ----- | ------- | ------- |
+| :----: | ----------------- | :----: | :----: | ------- | :----: |
 |1|Idealization|10/5|4|Refined the features we would like to develop and sorting out the core features to be developed first, and came up with ideas on what technologies we should use|Both|
 |2|Poster & Video|11/5|2|Completed poster with canva + wrote script and filmed our 1 min pitch|Both|
 |3|Learning React Basics|13/5|4|2 hour orbital workshop + 2 hours of exploring additional content|Both|
@@ -62,4 +62,5 @@ _note: remember to run these commands while you are still in the virtual env_
 |9|Learning Rest API|22/5|4|Setting up API endpoints with Django authentication and Django REST API|Jason|
 |10|Learning and Implementing Redux|26/5|6|Setting up Redux to work with Django Authentication|Jason|
 |11|Linking OCR model to backend|26/5|4|Cleaning the text produced by tesseract and making it an API with Django|Jamie|
+
 Total hours per member: 31
