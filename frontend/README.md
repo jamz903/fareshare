@@ -1,70 +1,65 @@
-# Getting Started with Create React App
+# fareshare
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## For Developers
+to begin developing the frontend, do (in the frontend directory):
 
-## Available Scripts
+_(please make sure you have yarn installed)_
 
-In the project directory, you can run:
+```
+yarn start
+```
 
-### `yarn start`
+for the django backend, do (in the backend directory):
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+_(please make sure you have django installed)_
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+```
+python3 manage.py runserver
+```
 
-### `yarn test`
+for the tesseract model dependencies, they are installed in virtual env _venv_
+use this command to activate the virutal environment to install more dependencies:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+_(please make sure you have virtualenv installed)_
 
-### `yarn build`
+```
+cd backend
+virtualenv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+to update the requirements.txt after more packages are installed (in the backend directory):
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```
+pip freeze > requirements.txt
+deactivate
+```
+_note: remember to run these commands while you are still in the virtual env_
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Milestone 1
 
-### `yarn eject`
+### Tech Stack
+#### Frameworks
+1. React & Redux (Frontend)
+2. Django (Backend)
+#### Others
+1. Javascript (with React & Redux)
+2. Python (with Django & OCR Scripts)
+3. Tesseract (OCR Model)
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `yarn build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+### Project Log
+| S/n | Task              | Date | Hours | Remarks | Done By |
+| --- | ----------------- | ---- | ----- | ------- | ------- |
+|1|Idealization|10/5|4|Refined the features we would like to develop and sorting out the core features to be developed first, and came up with ideas on what technologies we should use|Both|
+|2|Poster & Video|11/5|2|Completed poster with canva + wrote script and filmed our 1 min pitch|Both|
+|3|Learning React Basics|13/5|4|2 hour orbital workshop + 2 hours of exploring additional content|Both|
+|4|Learning Django Basics|17/5|2|Reading some guides and learning the MTV model that django follows|Both|
+|5|Set up of Dependencies & Stack|17/5|4|Setting up our environment to start working|Both|
+|6|Baseline OCR Python Script|17/5|2|Learnt how to use tesseract with python and implemented a basic script to read text from receipts|Jamie|
+|7|Learning how to link Django with React|17/5|5|Learning advanced Django and React for our Tech Stack|Both|
+|8|Further developing OCR model|22/5|6|Testing EAST OpenCV Model, Edge Detection, Data Cleaning Methods|Jamie|
+|9|Learning Rest API|22/5|4|Setting up API endpoints with Django authentication and Django REST API|Jason|
+|10|Learning and Implementing Redux|26/5|6|Setting up Redux to work with Django Authentication|Jason|
+|11|Linking OCR model to backend|26/5|4|Cleaning the text produced by tesseract and making it an API with Django|Jamie|
+Total hours per member: 31
