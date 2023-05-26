@@ -18,9 +18,7 @@ function App() {
           FareShare
         </div>
       </header>
-      <Outlet>
-        {/* displays content in the child route */}
-      </Outlet>
+      <Outlet />
     </div>
   );
 }

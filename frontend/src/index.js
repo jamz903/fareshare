@@ -3,15 +3,18 @@ import ReactDOM from 'react-dom/client';
 import './assets/index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+// router
 import {
   createBrowserRouter,
   RouterProvider,
 } from "react-router-dom";
-
+// redux
+import { Provider } from 'react-redux';
+import { store } from './store';
 // other pages
-import Login from './pages/Login';
-import Register from './pages/Register';
-import About from './pages/About';
+import Login from './features/auth/Login';
+import Register from './features/auth/Register';
+import About from './features/about/About';
 
 // router configuration
 const router = createBrowserRouter([
@@ -40,7 +43,9 @@ const router = createBrowserRouter([
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <Provider store={store}>
+      <RouterProvider router={router} />
+    </Provider>
   </React.StrictMode>
 );
 

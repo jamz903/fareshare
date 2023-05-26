@@ -1,7 +1,11 @@
+/**
+ * Login page for the app.
+ */
+
 // use axios to submit new user data to the server
 import axios from "axios";
 
-export default function Register() {
+export default function Login() {
   function handleSubmit(e) {
     // Prevent the browser from reloading the page
     e.preventDefault();
@@ -30,10 +34,6 @@ export default function Register() {
       <form method="post" onSubmit={handleSubmit}>
         <div className="column gap">
           <label>
-            Name:
-            <input name="name" />
-          </label>
-          <label>
             Email:
             <input name="email" />
           </label>
@@ -41,7 +41,7 @@ export default function Register() {
             Password:
             <input name="password" />
           </label>
-          <button type="submit" className="button">Register</button>
+          <button type="submit" className="button">Login</button>
         </div>
       </form>
     </div>
