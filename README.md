@@ -17,6 +17,13 @@ _(please make sure you have django installed)_
 python3 manage.py runserver
 ```
 
+remember to build frontend files with (in the frontend directory):
+
+_this ensures that when you run the backend server the frontend is updated._
+```
+yarn run build
+```
+
 for the tesseract model dependencies, they are installed in virtual env _venv_
 use this command to activate the virutal environment to install more dependencies:
 
