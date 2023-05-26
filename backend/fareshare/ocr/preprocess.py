@@ -130,40 +130,5 @@ result = bw_scanner(scanned)
 plot_gray(result)
 
 #updated image of the receipt (cropped)
-output = Image.fromarray(result)
+output = Image.fromarray(scanned)
 output.save('fareshare/ocr/result.png')
-
-def plot_gray(image):
-    plt.figure(figsize=(16,10))
-    return plt.imshow(image, cmap='Greys_r')
-
-def plot_rgb(image):
-    plt.figure(figsize=(16,10))
-    return plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
-
-file_name = "fareshare/ocr/result.png"
-image = cv2.imread(file_name, cv2.IMREAD_GRAYSCALE) 
-plot_gray(image)
-
-d = pytesseract.image_to_data(image, output_type=Output.DICT)
-n_boxes = len(d['level'])
-boxes = cv2.cvtColor(image.copy(), cv2.COLOR_BGR2RGB)
-for i in range(n_boxes):
-    (x, y, w, h) = (d['left'][i], d['top'][i], d['width'][i], d['height'][i])    
-    boxes = cv2.rectangle(boxes, (x, y), (x + w, y + h), (0, 255, 0), 2)
-    
-plot_rgb(boxes)
-
-#configuration setting to convert image to string.  
-configuration = ("-l eng --oem 1 --psm 12")
-extracted_text = pytesseract.image_to_string(image, config=configuration)
-#print(extracted_text)
-
-def find_amounts(text):
-    amounts = re.findall(r'\d+\.\d{2}\b', text)
-    floats = [float(amount) for amount in amounts]
-    unique = list(dict.fromkeys(floats))
-    return unique
-
-amounts = find_amounts(extracted_text)
-print("Total price of item: ", max(amounts))
