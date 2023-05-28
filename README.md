@@ -69,5 +69,6 @@ _note: remember to run these commands while you are still in the virtual env_
 |9|Learning Rest API|22/5|4|Setting up API endpoints with Django authentication and Django REST API|Jason|
 |10|Learning and Implementing Redux|26/5|6|Setting up Redux to work with Django Authentication|Jason|
 |11|Linking OCR model to backend|26/5|4|Cleaning the text produced by tesseract and making it an API with Django|Jamie|
+|12|Finish implementing Django authentication with frontend|28/5|3|Fully implement authentication workflow on frontend (register, login, logout). Added utility components for redirecting, in case user is not logged in.|Jason|
 
 Total hours per member: 31
