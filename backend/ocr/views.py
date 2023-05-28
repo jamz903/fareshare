@@ -12,8 +12,12 @@ import os
 from rest_framework.views import APIView
 import pandas as pd
 
-
 class OCRView(APIView):
+    # allow anyone to access this endpoint
+    # TODO: delete this when we can access this endpoint with authentication in the app
+    authentication_classes = [];
+    permission_classes = [];
+
     def get(self, request):
         data = {"json path": False}
 
