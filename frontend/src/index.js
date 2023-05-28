@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './assets/index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 // router
@@ -15,6 +14,15 @@ import { store } from './store';
 import Login from './features/auth/Login';
 import Register from './features/auth/Register';
 import About from './features/about/About';
+import Home from './features/home/Home';
+// axios
+import axios from "axios";
+
+// axios configuration
+// change baseURL to reflect the server's address
+// this is how we link to the backend django server
+// we can use axios to make requests to the backend, using axios.get() or axios.post()
+axios.defaults.baseURL = "http://127.0.0.1:8000";
 
 // router configuration
 const router = createBrowserRouter([
@@ -30,6 +38,11 @@ const router = createBrowserRouter([
         /* register page */
         path: "/register",
         element: <Register />
+      },
+      {
+        /* home page */
+        path: "/home",
+        element: <Home />
       },
       {
         /* show about page when the path is empty */

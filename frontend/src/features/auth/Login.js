@@ -1,11 +1,15 @@
 /**
  * Login page for the app.
  */
-
-// use axios to submit new user data to the server
-import axios from "axios";
+// import authentication actions
+import { useDispatch } from "react-redux";
+import { loginUser } from "./authSlice";
+import CSRFToken from "../../components/CSRFToken";
+import RedirectToHome from "../../components/RedirectToHome";
 
 export default function Login() {
+  const dispatch = useDispatch();
+
   function handleSubmit(e) {
     // Prevent the browser from reloading the page
     e.preventDefault();
@@ -18,32 +22,26 @@ export default function Login() {
     const formJson = Object.fromEntries(formData.entries());
     console.log(formJson);
 
-    // Axios will take the form data and send it to the Django server.
-    axios
-      .post('/api/some-endpoint', formData)
-      .then(response => {
-        console.log('success!' + response);
-      })
-      .catch(error => {
-        console.error(error);
-      });
+    // dispatch the login action
+    dispatch(loginUser(formJson));
   }
 
   return (
-    <div className="body-content-container">
-      <form method="post" onSubmit={handleSubmit}>
-        <div className="column gap">
-          <label>
-            Email:
-            <input name="email" />
-          </label>
-          <label>
-            Password:
-            <input name="password" />
-          </label>
-          <button type="submit" className="button">Login</button>
+    <RedirectToHome>
+      <form method="post" onSubmit={handleSubmit} className="d-flex flex-column justify-content-start">
+        <CSRFToken />
+        <label className="py-2">
+          Username:
+          <input name="username" />
+        </label>
+        <label className="py-2">
+          Password:
+          <input type="password" name="password" />
+        </label>
+        <div className="py-2">
+          <button type="submit" className="btn btn-secondary">Login</button>
         </div>
       </form>
-    </div>
+    </RedirectToHome>
   );
 }

@@ -11,7 +11,8 @@ class CheckAuthenticatedView(APIView):
     def get(self, request, format=None):
         try:
             # check if user is authenticated
-            is_authenticated = User.is_authenticated
+            user  = self.request.user
+            is_authenticated = user.is_authenticated
             if is_authenticated:
                 return Response({'is_authenticated': True})
             else:
@@ -41,8 +42,7 @@ class SignupView(APIView):
                         return Response({'error': 'Password must be at least 6 characters'})
                     else:
                         # create user
-                        user = User.objects.create_user(username=username, password=password)
-                        user.save()
+                        User.objects.create_user(username=username, password=password)
                         return Response({'success': 'User created successfully'})
             else:
                 return Response({'error': 'Passwords do not match'})

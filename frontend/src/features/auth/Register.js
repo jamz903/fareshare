@@ -6,6 +6,7 @@
 import { useDispatch } from "react-redux";
 import { registerUser } from "./authSlice";
 import CSRFToken from "../../components/CSRFToken";
+import RedirectToHome from "../../components/RedirectToHome";
 
 export default function Register() {
   const dispatch = useDispatch();
@@ -37,25 +38,25 @@ export default function Register() {
   }
 
   return (
-    <div className="body-content-container">
-      <form method="post" onSubmit={handleSubmit}>
+    <RedirectToHome>
+      <form method="post" onSubmit={handleSubmit} className="d-flex flex-column justify-content-start">
         <CSRFToken />
-        <div className="column gap">
-          <label>
-            Username:
-            <input name="username" />
-          </label>
-          <label>
-            Password:
-            <input name="password" />
-          </label>
-          <label>
-            Confirm Password:
-            <input name="re_password" />
-          </label>
-          <button type="submit" className="button">Register</button>
+        <label className="py-2">
+          Username:
+          <input name="username" />
+        </label>
+        <label className="py-2">
+          Password:
+          <input type="password" name="password" />
+        </label>
+        <label className="py-2">
+          Confirm Password:
+          <input type="password" name="re_password" />
+        </label>
+        <div className="py-2">
+          <button type="submit" className="btn btn-secondary">Register</button>
         </div>
       </form>
-    </div>
+    </RedirectToHome>
   );
 }

@@ -11,7 +11,6 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 export const registerUser = createAsyncThunk(
     'auth/register',
     async ({ username, password, re_password }, { rejectWithValue, dispatch }) => {
-        console.log(Cookies.get('csrftoken'));
         // set axios config headers
         const config = {
             headers: {
@@ -26,6 +25,8 @@ export const registerUser = createAsyncThunk(
                 `${process.env.REACT_APP_API_URL}/accounts/register`,
                 { username, password, re_password },
                 config);
+            // after registering, login user
+            dispatch(loginUser({ username, password }));
             return response.data;
         } catch (error) {
             // return custom error message from backend if present
@@ -36,6 +37,64 @@ export const registerUser = createAsyncThunk(
             }
         }
     });
+
+export const loginUser = createAsyncThunk(
+    'auth/login',
+    async ({ username, password }, { rejectWithValue, dispatch }) => {
+        // set axios config headers
+        const config = {
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'X-CSRFToken': Cookies.get('csrftoken'),
+            }
+        }
+        try {
+            // attempt to login user
+            const response = await axios.post(
+                `${process.env.REACT_APP_API_URL}/accounts/login`,
+                { username, password },
+                config);
+            return response.data;
+        } catch (error) {
+            // return custom error message from backend if present
+            if (error.response && error.response.data.message) {
+                return rejectWithValue(error.response.data.message)
+            } else {
+                return rejectWithValue(error.message)
+            }
+        }
+    });
+
+export const logoutUser = createAsyncThunk(
+    'auth/logout',
+    async ({ rejectWithValue, dispatch }) => {
+        console.log('logoutUser');
+        // set axios config headers
+        const config = {
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'X-CSRFToken': Cookies.get('csrftoken'),
+            }
+        }
+        try {
+            // attempt to logout user
+            const response = await axios.post(
+                `${process.env.REACT_APP_API_URL}/accounts/logout`,
+                {},
+                config);
+            return response.data;
+        } catch (error) {
+            // return custom error message from backend if present
+            if (error.response && error.response.data.message) {
+                return rejectWithValue(error.response.data.message)
+            } else {
+                return rejectWithValue(error.message)
+            }
+        }
+    });
+
 
 export const authSlice = createSlice({
     name: 'auth',
@@ -51,15 +110,37 @@ export const authSlice = createSlice({
         });
         builder.addCase(registerUser.fulfilled, (state, { payload }) => {
             state.loading = false;
-            state.isAuthenticated = true;
-            state.username = payload.username;
             console.log('User registered successfully!')
         });
         builder.addCase(registerUser.rejected, (state, { payload }) => {
             state.loading = false;
+            console.log('User registration failed.')
+        });
+        builder.addCase(loginUser.pending, (state, { payload }) => {
+            state.loading = true;
+        });
+        builder.addCase(loginUser.fulfilled, (state, { payload }) => {
+            state.loading = false;
+            state.isAuthenticated = true;
+            state.username = payload.username;
+            console.log('User logged in successfully!')
+        });
+        builder.addCase(loginUser.rejected, (state, { payload }) => {
+            state.loading = false;
+            console.log('User login failed.')
+        });
+        builder.addCase(logoutUser.pending, (state, { payload }) => {
+            state.loading = true;
+        });
+        builder.addCase(logoutUser.fulfilled, (state, { payload }) => {
+            state.loading = false;
             state.isAuthenticated = false;
             state.username = '';
-            console.log('User registration failed.')
+            console.log('User logged out successfully!')
+        });
+        builder.addCase(logoutUser.rejected, (state, { payload }) => {
+            state.loading = false;
+            console.log('User logout failed.')
         });
     },
 });
