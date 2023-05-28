@@ -55,6 +55,41 @@ We have found existing expenditure trackers available to be too generic and inco
 ### Our Solution
 FareShare is a bill splitting app that helps **students** automatically **split bills** and at the same time **track their expenditure** in the most efficient way possible.
 
+### Project Scope
+#### May (Milestone 1)
+##### Proof of Concept, Baseline Code
+1. OCR Model
+- be able to preprocess bad images and transform them
+- extract text from receipt with >80% accuracy
+
+2. Authentication
+- be able to create a user
+- be able to login
+
+#### June (Milestone 2)
+##### UI + Core Features
+1. Database
+- store user data in MySQL database
+
+2. Be able to submit photos of receipts
+- UI for photo taking
+
+3. Receipt Analysis System
+- clean data
+- track recurring expenses
+
+4. Bill Splitting
+- be able to indicate which expenses are not yours
+- bill your friends
+
+5. Expenditure Summary Screen
+- Show all categories of expenses
+
+#### July (Milestone 3)
+##### Additional Features, Bug Fixes
+1. Browser Extension / Widget
+2. Integration with Telegram Bots
+
 ### User Stories
 1. As a student, I want to be able to register for the system to ensure that my transactions are securely stored. [Register/Login]
 2. As a student who wants to split a receipt, I want the app to be able to identify what items I purchased in the bill. [OCR Model]
