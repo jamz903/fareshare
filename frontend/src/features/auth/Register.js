@@ -4,7 +4,7 @@
 
 // import authentication actions
 import { useDispatch } from "react-redux";
-import { registerUser } from "./authSlice";
+import { loginUser, registerUser } from "./authSlice";
 import CSRFToken from "../../components/CSRFToken";
 import RedirectToHome from "../../components/RedirectToHome";
 
@@ -35,6 +35,8 @@ export default function Register() {
 
     // Dispatch an action to register the user
     dispatch(registerUser(formJson));
+    // Login user
+    dispatch(loginUser({ username: formJson.username, password: formJson.password }));
   }
 
   return (
