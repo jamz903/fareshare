@@ -22,15 +22,21 @@ args = vars(ap.parse_args())
 # read the image
 img = cv2.imread(args["image"])
 
+# scale the image
+img = cv2.resize(img, None, fx=1.2, fy=1.2, interpolation=cv2.INTER_CUBIC)
+
+# remove noise
+img = cv2.fastNlMeansDenoisingColored(img, None, 10, 10, 7, 15)
+
 # convert to gray
 gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
 
 # blur
-smooth = cv2.GaussianBlur(gray, (95,95), 0)
+#smooth = cv2.GaussianBlur(gray, (95,95), 0)
+smooth = cv2.bilateralFilter(gray,9,75,75)
 
 # divide gray by morphology image
 division = cv2.divide(gray, smooth, scale=255)
-
 
 # sharpen using unsharp masking
 sharp = filters.unsharp_mask(division, radius=1.5, amount=1.5, preserve_range=False)
@@ -38,7 +44,7 @@ sharp = (255*sharp).clip(0,255).astype(np.uint8)
 
 # threshold
 #thresh = cv2.threshold(sharp, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
-
+#thresh = cv2.threshold(sharp,127,255,cv2.THRESH_BINARY)
 
 filename = "{}.png".format(os.getpid())
 cv2.imwrite(filename, sharp)
