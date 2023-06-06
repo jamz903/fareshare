@@ -1,13 +1,10 @@
 import { Fragment } from 'react';
 import { Outlet } from 'react-router-dom';
 
-import NavBar from './components/NavBar';
-
 function App() {
   return (
     <Fragment>
-      <NavBar />
-      <div className="container">
+      <div className='container mx-auto p-5'>
         <Outlet />
       </div>
     </Fragment>

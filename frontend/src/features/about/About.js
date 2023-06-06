@@ -2,22 +2,22 @@
  * Landing page for the app.
  */
 
-import { Link } from 'react-router-dom';
-import './About.css';
+import Navbar from '../../components/NavBar.js';
 
 export default function About() {
   return (
-    <div>
-      <div className='p-1'>
+    <div className='flex flex-col gap-6'>
+      <Navbar />
+      <div>
         FareShare is a bill spllitting web app that helps students
         automatically split bills and at the same time track their
         expenditure in the most efficient and effortless way possible.
       </div>
-      <div className='p-1'>
-        <Link className="About-link" to="/login">Login</Link>
+      <div>
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec congue odio convallis scelerisque mattis. Sed sed est massa. Ut posuere, metus non efficitur consectetur, nunc neque blandit lorem, ut semper arcu lectus in sapien. Vestibulum justo eros, scelerisque et nulla a, interdum porta ante. Cras vitae posuere tellus. Donec fermentum euismod consectetur. Nullam sem tellus, volutpat a purus eget, commodo bibendum sem. Mauris ullamcorper risus efficitur turpis rhoncus, at condimentum diam porttitor. Suspendisse venenatis dignissim auctor.
       </div>
-      <div className='p-1'>
-        <Link className="About-link" to="/register">New user? Register</Link>
+      <div>
+        Pellentesque ac semper elit. Nullam commodo vulputate sem quis mattis. Duis sit amet tortor ut elit pharetra tempus in in ex. Pellentesque ut justo turpis. Pellentesque dictum eu elit in pretium. Quisque maximus tempus erat, nec ultricies dui lacinia eu. Quisque fermentum dolor ac turpis pretium, vitae tincidunt purus blandit. Suspendisse eget accumsan velit. Curabitur porta finibus nisl id euismod. Ut laoreet lobortis risus at tristique. Aliquam convallis orci a massa facilisis tristique. Nullam est velit, rutrum eget dignissim consequat, hendrerit nec nibh. Duis faucibus, ex ac tincidunt molestie, tellus lorem tincidunt urna, tincidunt finibus nibh magna tincidunt mauris. Mauris finibus turpis et eleifend imperdiet. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
       </div>
     </div>
   );

@@ -17,6 +17,9 @@ import Login from './features/auth/Login';
 import Register from './features/auth/Register';
 import About from './features/about/About';
 import Home from './features/home/Home';
+import Profile from './features/profile/Profile';
+import Camera from './features/ocr/Camera';
+import Splash from './features/splash/Splash';
 // axios
 import axios from "axios";
 
@@ -47,9 +50,24 @@ const router = createBrowserRouter([
         element: <Home />
       },
       {
-        /* show about page when the path is empty */
-        path: "/",
+        /* profile page */
+        path: "/profile",
+        element: <Profile />
+      },
+      {
+        /* camera page */
+        path: "/camera",
+        element: <Camera />
+      },
+      {
+        /* about page */
+        path: "/about",
         element: <About />
+      },
+      {
+        /* show splash page when the path is empty */
+        path: "/",
+        element: <Splash />
       }
     ],
   },

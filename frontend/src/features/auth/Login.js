@@ -6,6 +6,9 @@ import { useDispatch } from "react-redux";
 import { loginUser } from "./authSlice";
 import CSRFToken from "../../components/CSRFToken";
 import RedirectToHome from "../../components/RedirectToHome";
+import Header from "../../components/Header";
+import Button from "../../components/Button";
+import Link from "../../components/Link";
 
 export default function Login() {
   const dispatch = useDispatch();
@@ -28,18 +31,30 @@ export default function Login() {
 
   return (
     <RedirectToHome>
-      <form method="post" onSubmit={handleSubmit} className="d-flex flex-column justify-content-start">
+      <form method="post" onSubmit={handleSubmit} className="flex flex-col items-center gap-16">
+        <div className="mt-16">
+          <Header text="Login" />
+        </div>
         <CSRFToken />
-        <label className="py-2">
-          Username:
-          <input name="username" />
-        </label>
-        <label className="py-2">
-          Password:
-          <input type="password" name="password" />
-        </label>
-        <div className="py-2">
-          <button type="submit" className="btn btn-secondary">Login</button>
+        <div className="flex flex-col items-center gap-6 w-full max-w-xl">
+          <label className="flex flex-col items-center gap-1 w-full">
+            <div className="w-full">
+              Username
+            </div>
+            <input type="username" name="username" className="border-primary border-2 rounded-xl py-2 px-4 w-full" placeholder="Type your username" />
+          </label>
+          <label className="flex flex-col items-center gap-1 w-full">
+            <div className="w-full">
+              Password
+            </div>
+            <input type="password" name="password" className="border-primary border-2 rounded-xl py-2 px-4 w-full" placeholder="Type your password" />
+          </label>
+        </div>
+        <div className="flex flex-col gap-3">
+          <Button type="submit" text="Login" />
+          <div className="text-center">
+            Don't have an account? <Link to="/register">Sign up.</Link>
+          </div>
         </div>
       </form>
     </RedirectToHome>
