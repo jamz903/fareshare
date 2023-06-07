@@ -25,9 +25,13 @@ export const registerUser = createAsyncThunk(
                 `${process.env.REACT_APP_API_URL}/accounts/register`,
                 { username, password, re_password },
                 config);
-            // after registering, login user
-            dispatch(loginUser({ username, password }));
-            return response.data;
+            if (response.data.success) {
+                // after registering, login user
+                dispatch(loginUser({ username, password }));
+                return response.data;
+            } else {
+                throw response.error
+            }
         } catch (error) {
             // return custom error message from backend if present
             if (error.response && error.response.data.message) {
@@ -55,7 +59,11 @@ export const loginUser = createAsyncThunk(
                 `${process.env.REACT_APP_API_URL}/accounts/login`,
                 { username, password },
                 config);
-            return response.data;
+            if (response.data.success) {
+                return response.data
+            } else {
+                throw response.error
+            }
         } catch (error) {
             // return custom error message from backend if present
             if (error.response && error.response.data.message) {
@@ -84,7 +92,11 @@ export const logoutUser = createAsyncThunk(
                 `${process.env.REACT_APP_API_URL}/accounts/logout`,
                 {},
                 config);
-            return response.data;
+            if (response.data.success) {
+                return response.data
+            } else {
+                throw response.error
+            }
         } catch (error) {
             // return custom error message from backend if present
             if (error.response && error.response.data.message) {
