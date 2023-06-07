@@ -20,6 +20,7 @@ import Home from './features/home/Home';
 import Profile from './features/profile/Profile';
 import Camera from './features/ocr/Camera';
 import Splash from './features/splash/Splash';
+import Upload from './features/ocr/Upload';
 // axios
 import axios from "axios";
 
@@ -63,6 +64,10 @@ const router = createBrowserRouter([
         /* about page */
         path: "/about",
         element: <About />
+      },
+      {
+        path:"/upload",
+        element: <Upload />
       },
       {
         /* show splash page when the path is empty */

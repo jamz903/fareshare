@@ -1,6 +1,9 @@
+from django.contrib import admin
 from django.urls import path
-from .views import OCRView
+from django.conf import settings
+from django.conf.urls.static import static
+from . import views
 
 urlpatterns = [
-    path('read', OCRView.as_view()),
+    path('upload/', views.OCRView.as_view(), name='upload')
 ]

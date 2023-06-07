@@ -141,10 +141,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # this is for the corsheaders package, to prevent errors
 # important to add trusted domains here
 CORS_ORIGIN_WHITELIST = [
-    'http://localhost:3000'
+    'http://localhost:3000',
+    'http://localhost:8000',
 ]
 CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:3000'
+    'http://localhost:3000',
+    'http://localhost:8000',
 ]
 
 # rest framework settings
@@ -157,3 +159,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication', # we are using session authentication
     ],
 }
+
+# for uploading images
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
