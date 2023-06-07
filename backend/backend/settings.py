@@ -153,7 +153,7 @@ CSRF_TRUSTED_ORIGINS = [
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated', # by default, users need to be authenticated to access the api
+        'rest_framework.permissions.AllowAny', # by default, users need to be authenticated to access the api
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication', # we are using session authentication
