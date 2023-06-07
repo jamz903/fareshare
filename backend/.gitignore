@@ -22,3 +22,6 @@ venv.bak/
 
 # misc
 .DS_Store
+
+# build
+build/
