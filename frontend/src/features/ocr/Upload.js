@@ -17,7 +17,7 @@ export default function Upload() {
 
   const [data, setData] = useState({
     name: "",
-    image_url: null
+    image: null
   });
 
   const handleChange = (e) => {
@@ -35,9 +35,8 @@ export default function Upload() {
   const handleSubmit = (e) => {
     // Prevent the browser from reloading the page
     e.preventDefault();
-    console.log(data);
     let form_data = new FormData();
-    form_data.append('image_url', data.image_url, data.image_url.name);
+    form_data.append('image', data.image, data.name);
     form_data.append('name', data.name);
     let url = `${process.env.REACT_APP_API_URL}/ocr/upload/`;
     axios.post(url, form_data, {
@@ -59,7 +58,9 @@ export default function Upload() {
     <body>
       <NavBar />
       <Header text="Upload" />
-      <form method="post" enctype="multipart/form-data" className="flex flex-col items-center gap-16">
+      <form method="post" enctype="multipart/form-data" onSubmit={(e) => {
+                                handleSubmit(e);
+                              }} className="flex flex-col items-center gap-16">
             <CSRFToken />
             <Row>
               <input type="text" placeholder='name' id='name' onChange={(e) => {handleChange(e);}} />
@@ -76,9 +77,7 @@ export default function Upload() {
                               />
               </Form.Group>
             </Row>
-            <Button onSubmit={(e) => {
-                                handleSubmit(e);
-                              }} type="submit" text="Submit" />
+            <Button type="submit" text="Submit" />
       </form>
     </body>
   );
