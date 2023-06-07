@@ -51,10 +51,24 @@ class OCRView(APIView):
         return Response(serializer.data)
     
     def post(self, request, *args, **kwargs):
+        data = {"json path": False}
         receipt_serializer = ReceiptSerializer(data=request.data)
         if receipt_serializer.is_valid():
             receipt_serializer.save()
-            return Response(receipt_serializer.data, status=status.HTTP_201_CREATED)
+            image = receipt_serializer.data['image']
+            os.system("python3 ocr/model/receipt_detection.py --image " + image[1:])
+            if exists("ocr/model/text.csv"):
+                #grab the uploaded csv and add index
+                df = pd.read_csv("ocr/model/text.csv")
+                df.to_json("ocr/model/data.json")
+                f = open("ocr/model/data.json")
+                json_data = json.load(f)
+                data.update({"json path": True, "data": json_data})
+                return JsonResponse(data)
+            else:
+              data["error"] = "No csv was uploaded"
+              return JsonResponse(data)
+            #return Response(receipt_serializer.data, status=status.HTTP_201_CREATED)
         else:
             print('error', receipt_serializer.errors)
             return Response(receipt_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
