@@ -11,7 +11,7 @@ import Button from "../../components/Button";
 import axios from 'axios';
 import CSRFToken from "../../components/CSRFToken";
 import Cookies from 'js-cookie';
-import NavBar from "../../components/navbar";
+import NavBar from "../../components/NavBar";
 
 export default function Upload() {
 
@@ -44,8 +44,8 @@ export default function Upload() {
         'Accept': 'application/json',
         'Content-Type': 'multipart/form-data',
         'X-CSRFToken': Cookies.get('csrftoken'),
-        'Access-Control-Allow-Methods':'GET,PUT,POST,DELETE,PATCH,OPTIONS',
-        'Aceess-Control-Allow-Origin':'*',
+        'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE,PATCH,OPTIONS',
+        'Aceess-Control-Allow-Origin': '*',
       }
     })
       .then(res => {
@@ -59,25 +59,25 @@ export default function Upload() {
       <NavBar />
       <Header text="Upload" />
       <form method="post" enctype="multipart/form-data" onSubmit={(e) => {
-                                handleSubmit(e);
-                              }} className="flex flex-col items-center gap-16">
-            <CSRFToken />
-            <Row>
-              <input type="text" placeholder='name' id='name' onChange={(e) => {handleChange(e);}} />
-            </Row>
-            <Row>
-              <Form.Group controlId="formFile" className="mb-3">
-                <Form.Label>Upload Receipt</Form.Label>
-                <Form.Control type="file" 
-                              name="image_url"
-                              accept="image/jpeg"
-                              onChange={(e) => {
-                                handleImageChange(e);
-                              }}
-                              />
-              </Form.Group>
-            </Row>
-            <Button type="submit" text="Submit" />
+        handleSubmit(e);
+      }} className="flex flex-col items-center gap-16">
+        <CSRFToken />
+        <Row>
+          <input type="text" placeholder='name' id='name' onChange={(e) => { handleChange(e); }} />
+        </Row>
+        <Row>
+          <Form.Group controlId="formFile" className="mb-3">
+            <Form.Label>Upload Receipt</Form.Label>
+            <Form.Control type="file"
+              name="image_url"
+              accept="image/jpeg"
+              onChange={(e) => {
+                handleImageChange(e);
+              }}
+            />
+          </Form.Group>
+        </Row>
+        <Button type="submit" text="Submit" />
       </form>
     </body>
   );
