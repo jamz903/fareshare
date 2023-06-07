@@ -38,8 +38,6 @@ export default function Register() {
 
     // Dispatch an action to register the user
     dispatch(registerUser(formJson));
-    // Login user
-    dispatch(loginUser({ username: formJson.username, password: formJson.password }));
   }
 
   return (

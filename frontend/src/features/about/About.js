@@ -5,13 +5,12 @@
 import Button from '../../components/Button.js';
 import Navbar from '../../components/NavBar.js';
 import receiptJsonParser from '../ocr/ReceiptJsonParser.js';
-const data = require('./data1.json');
 
 export default function About() {
   return (
     <div className='flex flex-col gap-6'>
       <Navbar />
-      <Button text='Parse Receipt' onClick={() => receiptJsonParser(data)} />
+      <Button text='Parse Receipt' onClick={() => receiptJsonParser(/** insert data here */)} />
       <div>
         FareShare is a bill spllitting web app that helps students
         automatically split bills and at the same time track their
