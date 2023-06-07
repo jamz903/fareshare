@@ -44,7 +44,7 @@ deactivate
 ```
 _note: remember to run these commands while you are still in the virtual env_
 
-## Milestone 1
+## Milestone 2
 #### Level of Achievement: Apollo 11
 
 ### The Problem
@@ -93,7 +93,7 @@ FareShare is a bill splitting app that helps **students** automatically **split 
 ### User Stories
 1. As a student, I want to be able to register for the system to ensure that my transactions are securely stored. [Register/Login]
 2. As a student who wants to split a receipt, I want the app to be able to identify what items I purchased in the bill. [OCR Model]
-3. As a student, I want my transactions to be stored so that I can easily keep track of my expenses. [Database]
+3. As a student, I want to be able to upload any type of receipt. [OCR + User Interface]
 4. As a student who wants to split a bill, I want a quick way to determine who needs to pay for each item when I buy for others. [Data Cleaning]
 5. As a student who is on a tight budget, I want a quick way to view the categories I am spending on. [User Interface]
 6. As a student who does not want to spend time tracing how much I've spent through transfers to other people, I want an expenditure tracker that does that for me. [User Interface + Processing]
@@ -115,10 +115,13 @@ FareShare is a bill splitting app that helps **students** automatically **split 
 #### Frameworks
 1. React & Redux (Frontend)
 2. Django (Backend)
+3. MySQL (Database)
+4. Amazon Web Services (Server)
 #### Others
 1. Javascript (with React & Redux)
 2. Python (with Django & OCR Scripts)
 3. Tesseract (OCR Model)
+4. Tailwind CSS (Styling)
 
 ### Project Log
 | S/n | Task              | Date | Hours | Remarks | Done By |
