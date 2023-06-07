@@ -16,7 +16,7 @@ module.exports = {
         'seasalt': '#F8F7F6', // Seasalt (off-white)
         'primary': '#05387B', // Yale Blue (darker blue)
         'secondary': '#1B9AAA', // Munsell Blue (lighter blue)
-        // add fifth color
+        'tertiary': '#FFC759', // Xanthous (yellow)
       },
     },
   },

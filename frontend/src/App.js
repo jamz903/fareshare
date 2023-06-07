@@ -1,13 +1,14 @@
-import { Fragment } from 'react';
 import { Outlet } from 'react-router-dom';
+import SideDrawer from './components/SideDrawer/SideDrawer';
 
 function App() {
   return (
-    <Fragment>
+    <div className='h-full flex flex-row'>
+      <SideDrawer />
       <div className='container mx-auto p-5'>
         <Outlet />
       </div>
-    </Fragment>
+    </div>
   );
 }
 
