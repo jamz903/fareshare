@@ -23,5 +23,6 @@ venv.bak/
 # misc
 .DS_Store
 
-# build
+# other
 build/
+media/images/
