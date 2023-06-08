@@ -50,8 +50,6 @@ export default function Upload() {
         'Accept': 'application/json',
         'Content-Type': 'multipart/form-data',
         'X-CSRFToken': Cookies.get('csrftoken'),
-        'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE,PATCH,OPTIONS',
-        'Aceess-Control-Allow-Origin': '*',
       }
     })
       .then(res => {
