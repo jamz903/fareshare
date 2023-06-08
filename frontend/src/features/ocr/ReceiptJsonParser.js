@@ -18,7 +18,7 @@ function receiptJsonParser(receipt) {
         paidAmount: 0,
         change: 0,
     };
-    const priceRegex = RegExp(/\d+\.\d\d/);
+    const priceRegex = RegExp(/\d+[\.\,]\d\d/);
     const numberRegex = RegExp(/\d+/); // checks for any number
     const qtyRegex = RegExp(/(?<!\S)\d+(?!\S)/); // checks for a number that is not surrounded by any non-whitespace character
 
@@ -31,7 +31,7 @@ function receiptJsonParser(receipt) {
     const MINIMUM_NAME_CHARACTER_THRESHOLD = 5; // minimum number of alphabetical characters in a valid item name
 
     /** 
-     * Helper Functions 
+     *  Helper Functions
      */
 
     const hasSubTotal = (line) => {
@@ -325,16 +325,17 @@ function receiptJsonParser(receipt) {
             // return null if no such chain exists
             let endingPointer = 0;
             let startingPointer = 0;
-            let currentPrice = 0.0;
+            let currentPrice = purchasedItems[0].price;
             // 1. add itemPrice to currentPrice
             // 2. if currentPrice < targetPrice, increment endingPointer
             // 3. if currentPrice > targetPrice, increment startingPointer
             // 4. if currentPrice == targetPrice, return the chain of items
             while (endingPointer < purchasedItems.length) {
-                const itemPrice = purchasedItems[endingPointer].price;
-                currentPrice += itemPrice;
                 if (currentPrice < targetPrice) {
                     endingPointer++;
+                    if (endingPointer < purchasedItems.length) {
+                        currentPrice += purchasedItems[endingPointer].price;
+                    }
                 } else if (currentPrice > targetPrice) {
                     currentPrice -= purchasedItems[startingPointer].price;
                     startingPointer++;
@@ -360,19 +361,68 @@ function receiptJsonParser(receipt) {
             return null;
         }
 
-        const withoutTaxOrSvc = findTarget(purchasedItems, paid);
-        const withTaxOnly = other.tax != 0 ? findTarget(purchasedItems, paid + other.tax) : null;
-        const withSvcOnly = other.serviceCharge != 0 ? findTarget(purchasedItems, paid + other.serviceCharge) : null;
-        const withTaxAndSvc = other.tax != 0 && other.serviceCharge != 0 ? findTarget(purchasedItems, paid + other.tax + other.serviceCharge) : null;
-        return withoutTaxOrSvc != null
-            ? withoutTaxOrSvc
-            : withTaxOnly != null
-                ? withTaxOnly
-                : withSvcOnly != null
-                    ? withSvcOnly
-                    : withTaxAndSvc != null
-                        ? withTaxAndSvc
-                        : null;
+        // basically dynamically program all results:
+        // +(total/subtotal/paidAmount) +-(discount) +-(serviceCharge + tax) 
+
+        const baseValues = [];
+        if (other.total != 0) {
+            baseValues.push(other.total);
+        }
+        if (other.subTotal != 0) {
+            baseValues.push(other.subTotal);
+        }
+        if (other.paidAmount != 0) {
+            baseValues.push(other.paidAmount);
+        }
+
+        const discountValues = [];
+        if (other.discount != 0) {
+            discountValues.push(other.discount);
+            discountValues.push(-other.discount);
+        }
+        discountValues.push(0);
+
+        const svcValues = [];
+        if (other.serviceCharge != 0) {
+            svcValues.push(other.serviceCharge);
+            svcValues.push(-other.serviceCharge);
+        }
+        svcValues.push(0);
+
+        const taxValues = [];
+        if (other.tax != 0) {
+            taxValues.push(other.tax);
+            taxValues.push(-other.tax);
+        }
+        taxValues.push(0);
+
+        // obtain an array of results where the target is hit
+        const results = [];
+        baseValues.forEach((base) => {
+            discountValues.forEach((discount) => {
+                svcValues.forEach((svc) => {
+                    taxValues.forEach((tax) => {
+                        const targetPrice = base + discount + svc + tax;
+                        const obtained = findTarget(purchasedItems, targetPrice);
+                        if (obtained != null && obtained.length > 0) {
+                            results.push(obtained);
+                        }
+                    });
+                });
+            });
+        });
+
+        // return the result with the most number of items
+        let max = 0;
+        let targetItems = null;
+        results.forEach((arr) => {
+            if (arr.length > max) {
+                max = arr.length;
+                targetItems = arr;
+            }
+        });
+
+        return targetItems;
     }
 
     const targetItems = aimToHitTarget(purchasedItems, other);
@@ -380,13 +430,10 @@ function receiptJsonParser(receipt) {
         purchasedItems = targetItems;
     }
 
-    console.log(purchasedItems);
-    console.log(other);
     return {
         items: purchasedItems,
         other: other,
     };
-
 
 }
 
