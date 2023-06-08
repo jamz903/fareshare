@@ -26,3 +26,5 @@ venv.bak/
 # other
 build/
 media/images/
+ocr/model/data.json
+ocr/model/text.csv

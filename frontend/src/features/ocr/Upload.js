@@ -16,19 +16,23 @@ import receiptJsonParser from "./ReceiptJsonParser";
 
 export default function Upload() {
 
-  const [data, setData] = useState({
-    name: "",
+  const [image, setImage] = useState({
     image: null
   });
 
+  const [name, setName] = useState({
+    name: ''
+  })
+
   const handleChange = (e) => {
-    setData({
-      [e.target.id]: e.target.value
+    console.log("value: " + e.target.value);
+    setName({
+      name: e.target.value
     })
   }
 
   const handleImageChange = (e) => {
-    setData({
+    setImage({
       image: e.target.files[0]
     })
   }
@@ -37,8 +41,9 @@ export default function Upload() {
     // Prevent the browser from reloading the page
     e.preventDefault();
     let form_data = new FormData();
-    form_data.append('image', data.image, data.name);
-    form_data.append('name', data.name);
+    console.log(name.name);
+    form_data.append('image', image.image, name.name + ".jpg");
+    form_data.append('name', name.name);
     let url = `/ocr/upload/`;
     axios.post(url, form_data, {
       headers: {

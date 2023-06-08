@@ -13,6 +13,7 @@ from imutils.object_detection import non_max_suppression
 import os
 import re
 import csv
+from textblob import TextBlob
 
 #construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
@@ -45,37 +46,31 @@ sharp = (255*sharp).clip(0,255).astype(np.uint8)
 # threshold
 #thresh = cv2.threshold(sharp, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
 #thresh = cv2.threshold(sharp,127,255,cv2.THRESH_BINARY)
+thresh = cv2.GaussianBlur(sharp, (3,3), 0)
 
 filename = "{}.png".format(os.getpid())
-cv2.imwrite(filename, sharp)
+cv2.imwrite(filename, thresh)
 
 #load the image as a PIL/Pillow image, apply OCR, and then delete the temporary file
 configuration = ("-l eng --oem 1 --psm 3")
 text = pytesseract.image_to_string(Image.open(filename), config=configuration)
+
+#spell check
+#tb = TextBlob(text)
+#corrected = tb.correct()
+#print(corrected)
+
 os.remove(filename)
-print(text)
 
 #show the output images
 # cv2.imshow("Output", gray)
 # cv2.waitKey(0)
-
-def clean(text):
-    amounts = re.findall(r'\d+\.\d{2}\b', text)
-    floats = [float(amount) for amount in amounts]
-    unique = list(dict.fromkeys(floats))
-    return unique
-
-amounts = clean(text)
-amounts.sort()
-#print(amounts)
-#print("Total price of item: ", max(amounts))
 
 # open the file in the write mode
 f = open('ocr/model/text.csv', 'w')
 
 # create the csv writer
 writer = csv.writer(f)
-pricePattern = r'([0-9]+\.[0-9]+)'
 # write a row to the csv file
 for row in text.split("\n"):
     writer.writerow([row])
