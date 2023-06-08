@@ -22,7 +22,7 @@ export const registerUser = createAsyncThunk(
         try {
             // attempt to register user
             const response = await axios.post(
-                `${process.env.REACT_APP_API_URL}/accounts/register`,
+                `/accounts/register`,
                 { username, password, re_password },
                 config);
             if (response.data.success) {
@@ -30,7 +30,8 @@ export const registerUser = createAsyncThunk(
                 dispatch(loginUser({ username, password }));
                 return response.data;
             } else {
-                throw response.error
+                console.log(response.data);
+                throw new Error(response.data.error);
             }
         } catch (error) {
             // return custom error message from backend if present
@@ -56,7 +57,7 @@ export const loginUser = createAsyncThunk(
         try {
             // attempt to login user
             const response = await axios.post(
-                `${process.env.REACT_APP_API_URL}/accounts/login`,
+                `/accounts/login`,
                 { username, password },
                 config);
             if (response.data.success) {
@@ -89,7 +90,7 @@ export const logoutUser = createAsyncThunk(
         try {
             // attempt to logout user
             const response = await axios.post(
-                `${process.env.REACT_APP_API_URL}/accounts/logout`,
+                `/accounts/logout`,
                 {},
                 config);
             if (response.data.success) {
@@ -124,7 +125,7 @@ export const authSlice = createSlice({
             state.loading = false;
             console.log('User registered successfully!')
         });
-        builder.addCase(registerUser.rejected, (state, { payload }) => {
+        builder.addCase(registerUser.rejected, (state, { payload, error }) => {
             state.loading = false;
             console.log('User registration failed.')
         });

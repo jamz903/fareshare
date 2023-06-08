@@ -12,6 +12,7 @@ import axios from 'axios';
 import CSRFToken from "../../components/CSRFToken";
 import Cookies from 'js-cookie';
 import NavBar from "../../components/NavBar";
+import receiptJsonParser from "./ReceiptJsonParser";
 
 export default function Upload() {
 
@@ -38,7 +39,7 @@ export default function Upload() {
     let form_data = new FormData();
     form_data.append('image', data.image, data.name);
     form_data.append('name', data.name);
-    let url = `${process.env.REACT_APP_API_URL}/ocr/upload/`;
+    let url = `/ocr/upload/`;
     axios.post(url, form_data, {
       headers: {
         'Accept': 'application/json',
@@ -49,7 +50,8 @@ export default function Upload() {
       }
     })
       .then(res => {
-        console.log(res.data);
+        console.log(res.data.data);
+        console.log(receiptJsonParser(res.data.data));
       })
       .catch(err => console.log(err))
   };
