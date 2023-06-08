@@ -140,13 +140,17 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # this is for the corsheaders package, to prevent errors
 # important to add trusted domains here
-CORS_ORIGIN_WHITELIST = [
-    'http://localhost:3000',
-    'http://localhost:8000',
-]
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:3000',
     'http://localhost:8000',
+    'http://127.0.0.1:8000',
+    'http://18.116.51.250:8000', # this is the ip address of the ec2 instance
+]
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+    'http://18.116.51.250:8000', # this is the ip address of the ec2 instance
 ]
 
 # rest framework settings

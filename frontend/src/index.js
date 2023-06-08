@@ -21,14 +21,6 @@ import Profile from './features/profile/Profile';
 import Camera from './features/ocr/Camera';
 import Splash from './features/splash/Splash';
 import Upload from './features/ocr/Upload';
-// axios
-import axios from "axios";
-
-// axios configuration
-// change baseURL to reflect the server's address
-// this is how we link to the backend django server
-// we can use axios to make requests to the backend, using axios.get() or axios.post()
-axios.defaults.baseURL = "http://127.0.0.1:8000";
 
 // router configuration
 const router = createBrowserRouter([
@@ -66,7 +58,7 @@ const router = createBrowserRouter([
         element: <About />
       },
       {
-        path:"/upload",
+        path: "/upload",
         element: <Upload />
       },
       {

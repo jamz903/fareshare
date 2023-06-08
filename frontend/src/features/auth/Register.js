@@ -4,7 +4,7 @@
 
 // import authentication actions
 import { useDispatch } from "react-redux";
-import { loginUser, registerUser } from "./authSlice";
+import { registerUser } from "./authSlice";
 import CSRFToken from "../../components/CSRFToken";
 import RedirectToHome from "../../components/RedirectToHome";
 import Header from "../../components/Header";
@@ -37,7 +37,15 @@ export default function Register() {
     }
 
     // Dispatch an action to register the user
-    dispatch(registerUser(formJson));
+    dispatch(registerUser(formJson))
+      .unwrap()
+      .then((result) => {
+        console.log('result:');
+        console.log(result);
+      })
+      .catch((error) => {
+        alert("Error: " + error.message);
+      });
   }
 
   return (
