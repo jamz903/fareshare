@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { logoutUser } from "../../features/auth/authSlice";
 import SideDrawerButton from "./SideDrawerButton";
 
-function SideDrawer() {
+export default function SideDrawer() {
     const open = useSelector(state => state.drawer.drawerOpen);
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -40,10 +40,8 @@ function SideDrawer() {
                     <SideDrawerButton onClick={() => { dispatch(logoutUser()); closeDrawer(); }}>Logout</SideDrawerButton>
                 </div>
             </div>
-            <div className={divBg + hiddenClass} onClick={closeDrawer}>
+            <div className={divBg + hiddenClass} onClick={closeDrawer} data-testid="id">
             </div>
         </div>
     );
 }
-
-export default SideDrawer;
