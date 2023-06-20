@@ -24,7 +24,6 @@ export default function Register() {
 
     // Format form data as plain object
     const formJson = Object.fromEntries(formData.entries());
-    console.log(formJson);
 
     // Form vaidation
     if (formJson.password !== formJson.re_password) {
@@ -50,7 +49,7 @@ export default function Register() {
 
   return (
     <RedirectToHome>
-      <form method="post" onSubmit={handleSubmit} className="flex flex-col items-center gap-16">
+      <form method="post" onSubmit={handleSubmit} className="flex flex-col items-center gap-16 px-5">
         <div className="mt-16">
           <Header text="Sign Up" />
         </div>
@@ -76,7 +75,9 @@ export default function Register() {
           </label>
         </div>
         <div className="flex flex-col gap-3">
-          <Button type="submit" text="Sign Up" />
+          <Button type="submit">
+            Sign Up
+          </Button>
           <div className="text-center">
             Already have an account? <Link to="/login">Login.</Link>
           </div>

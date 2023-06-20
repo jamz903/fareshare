@@ -18,10 +18,14 @@ export default function Splash() {
                 </div>
             </div>
             <div className="mt-6">
-                <Button text="Login" onClick={() => navigate("/login")} />
+                <Button onClick={() => navigate("/login")}>
+                    Log In
+                </Button>
             </div>
             <div>
-                <Button text="Sign Up" onClick={() => navigate("/register")} />
+                <Button onClick={() => navigate("/register")}>
+                    Sign Up
+                </Button>
             </div>
             <div>
                 New here? <Link to="/camera">Try Guest Mode.</Link>

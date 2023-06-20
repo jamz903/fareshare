@@ -1,24 +1,41 @@
 /** Helper function to parse receipt JSON */
+export const PAYMENTMETHOD = {
+    CASH: 'CASH',
+    CASHLESS: 'CASHLESS',
+    UNDEFINED: 'UNDEFINED',
+}
 
+/**
+ * @param {Object} receipt 
+ * @returns a javascript object containing:
+ * 1. items: an array of objects containing the following fields:
+ *    - name: (String) name of the item
+ *    - price: (Number) price of the item
+ *    - qty: (Number) quantity of the item
+ * 2. other: an object containing the following fields:
+ *    - subTotal: (Number) sub total of the receipt
+ *    - total: (Number) total of the receipt
+ *    - tax: (Number) tax of the receipt
+ *    - serviceCharge: (Number) service charge of the receipt
+ *    - discount: (Number) total discount of the receipt
+ *    - paymentMethod: (String) payment method of the receipt
+ *    - paidAmount: (Number) paid amount of the receipt
+ *    - change: (Number) change of the receipt
+ */
 function receiptJsonParser(receipt) {
     const receiptLines = receipt[Object.keys(receipt)[0]]
     let purchasedItems = [];
-    const PAYMENTMETHOD = {
-        CASH: 'CASH',
-        CASHLESS: 'CASHLESS',
-        UNDEFINED: 'UNDEFINED',
-    }
     const other = {
         subTotal: 0,
         total: 0,
         tax: 0,
         serviceCharge: 0,
-        totalDiscount: 0,
+        discount: 0,
         paymentMethod: PAYMENTMETHOD.UNDEFINED,
         paidAmount: 0,
         change: 0,
     };
-    const priceRegex = RegExp(/\d+[\.\,]\d\d/);
+    const priceRegex = RegExp(/\d+[.,]\d\d/);
     const numberRegex = RegExp(/\d+/); // checks for any number
     const qtyRegex = RegExp(/(?<!\S)\d+(?!\S)/); // checks for a number that is not surrounded by any non-whitespace character
 
@@ -122,7 +139,7 @@ function receiptJsonParser(receipt) {
     function hasValidName(name) {
         const alphabetRegex = RegExp(/[a-z]/, 'gi');
         const arr = name.match(alphabetRegex);
-        if (arr == null) {
+        if (arr === null) {
             return false;
         }
         return name.match(alphabetRegex).length > MINIMUM_NAME_CHARACTER_THRESHOLD
@@ -134,7 +151,7 @@ function receiptJsonParser(receipt) {
             return '';
         } else {
             const line = receiptLines[keyNumber.toString()];
-            if (line == null) {
+            if (line === null) {
                 // empty line, go next
                 return lookBackwardsForName(keyNumber - 1);
             } else if (priceRegex.test(line)) {
@@ -161,7 +178,7 @@ function receiptJsonParser(receipt) {
     // 1.3 This step also acts like a blacklist, removing all lines that are not purchased items
     Object.keys(receiptLines).forEach((key) => {
         const line = receiptLines[key];
-        if (line == null) {
+        if (line === null) {
             // do nothing
         } else {
             if (hasPaid(line)) {
@@ -201,7 +218,7 @@ function receiptJsonParser(receipt) {
     //    This step acts like a blacklist, removing all lines that are not purchased items
     Object.keys(receiptLines).forEach((key) => {
         const line = receiptLines[key];
-        if (line == null) {
+        if (line === null) {
             // do nothing
         } else {
             if (hasSubTotal(line)) {
@@ -248,6 +265,7 @@ function receiptJsonParser(receipt) {
             price = parseFloat(priceArr[0]);
             line = line.replace(priceArr[0], '');
         }
+        line = line.trim();
         // quantity can be either in the front or back
         const frontSubstring = line.substring(0, QTY_DETECTION_THRESHOLD);
         const backSubstring = line.substring(line.length - QTY_DETECTION_THRESHOLD);
@@ -289,7 +307,7 @@ function receiptJsonParser(receipt) {
     // 3.   Iterate through receipt to find purchased items (lines with prices, or lines with quantities)
     Object.keys(receiptLines).forEach((key) => {
         let line = receiptLines[key];
-        if (line == null) {
+        if (line === null) {
             // do nothing
         } else if (priceRegex.test(line)) {
             // found a line with a price
@@ -310,7 +328,7 @@ function receiptJsonParser(receipt) {
 
     // 5. Filter out all items that have no quantity and price.
     purchasedItems = purchasedItems.filter((item) => {
-        return !(item.qty == 0 && item.price == 0.0);
+        return !(item.qty === 0 && item.price === 0.0);
     });
 
     // 6.   Aim to hit a target price, if possible
@@ -329,7 +347,7 @@ function receiptJsonParser(receipt) {
             // 1. add itemPrice to currentPrice
             // 2. if currentPrice < targetPrice, increment endingPointer
             // 3. if currentPrice > targetPrice, increment startingPointer
-            // 4. if currentPrice == targetPrice, return the chain of items
+            // 4. if currentPrice === targetPrice, return the chain of items
             while (endingPointer < purchasedItems.length) {
                 if (currentPrice < targetPrice) {
                     endingPointer++;
@@ -339,7 +357,7 @@ function receiptJsonParser(receipt) {
                 } else if (currentPrice > targetPrice) {
                     currentPrice -= purchasedItems[startingPointer].price;
                     startingPointer++;
-                } else if (purchasedItems[startingPointer].price == 0) {
+                } else if (purchasedItems[startingPointer].price === 0) {
                     // the target price is already hit.
                     // delete front items with 0 price because they do not contribute to the receipt.
                     startingPointer++;
@@ -350,47 +368,36 @@ function receiptJsonParser(receipt) {
             return null;
         }
 
-        let paid = 0;
-        if (other.paidAmount != 0) {
-            paid = other.paidAmount;
-        } else if (other.total != 0) {
-            paid = other.total;
-        } else if (other.subTotal != 0) {
-            paid = other.subTotal;
-        } else {
-            return null;
-        }
-
         // basically dynamically program all results:
         // +(total/subtotal/paidAmount) +-(discount) +-(serviceCharge + tax) 
 
         const baseValues = [];
-        if (other.total != 0) {
+        if (other.total !== 0) {
             baseValues.push(other.total);
         }
-        if (other.subTotal != 0) {
+        if (other.subTotal !== 0) {
             baseValues.push(other.subTotal);
         }
-        if (other.paidAmount != 0) {
+        if (other.paidAmount !== 0) {
             baseValues.push(other.paidAmount);
         }
 
         const discountValues = [];
-        if (other.discount != 0) {
+        if (other.discount !== 0) {
             discountValues.push(other.discount);
             discountValues.push(-other.discount);
         }
         discountValues.push(0);
 
         const svcValues = [];
-        if (other.serviceCharge != 0) {
+        if (other.serviceCharge !== 0) {
             svcValues.push(other.serviceCharge);
             svcValues.push(-other.serviceCharge);
         }
         svcValues.push(0);
 
         const taxValues = [];
-        if (other.tax != 0) {
+        if (other.tax !== 0) {
             taxValues.push(other.tax);
             taxValues.push(-other.tax);
         }

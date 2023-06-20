@@ -6,3 +6,10 @@
     font-family: 'Inter';
     src: url('./assets/fonts/Inter-VariableFont_slnt,wght.ttf');
 }
+
+html,
+body,
+#root {
+    height: 100%;
+    width: 100%;
+}

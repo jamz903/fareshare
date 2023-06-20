@@ -1,14 +1,16 @@
 import { useSelector } from 'react-redux';
 import RequireAuth from '../../components/RequireAuth';
 import NavBar from '../../components/NavBar';
+import NavBarLayout from '../../layouts/NavBarLayout';
 
 function Home() {
     const username = useSelector(state => state.auth.username);
 
     return (
         <RequireAuth>
-            <NavBar text="Home" />
-            <h1>Welcome back, {username}.</h1>
+            <NavBarLayout navBarText='fareshare'>
+                <h1>Welcome back, {username}.</h1>
+            </NavBarLayout>
         </RequireAuth>
     );
 }

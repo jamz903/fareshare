@@ -23,7 +23,6 @@ export default function Login() {
 
     // Format form data as plain object
     const formJson = Object.fromEntries(formData.entries());
-    console.log(formJson);
 
     // dispatch the login action
     dispatch(loginUser(formJson));
@@ -31,7 +30,7 @@ export default function Login() {
 
   return (
     <RedirectToHome>
-      <form method="post" onSubmit={handleSubmit} className="flex flex-col items-center gap-16">
+      <form method="post" onSubmit={handleSubmit} className="flex flex-col items-center gap-16 px-5">
         <div className="mt-16">
           <Header text="Login" />
         </div>
@@ -51,7 +50,9 @@ export default function Login() {
           </label>
         </div>
         <div className="flex flex-col gap-3">
-          <Button type="submit" text="Login" />
+          <Button type="submit">
+            Login
+          </Button>
           <div className="text-center">
             Don't have an account? <Link to="/register">Sign up.</Link>
           </div>
