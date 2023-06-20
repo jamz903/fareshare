@@ -1,6 +1,5 @@
 import { useSelector } from 'react-redux';
 import RequireAuth from '../../components/RequireAuth';
-import NavBar from '../../components/NavBar';
 import NavBarLayout from '../../layouts/NavBarLayout';
 
 function Home() {

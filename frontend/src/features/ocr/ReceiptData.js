@@ -1,5 +1,5 @@
 import NavBarLayout from "../../layouts/NavBarLayout";
-import { ShoppingCartIcon, CurrencyDollarIcon, HashtagIcon, UserIcon, XMarkIcon, PlusIcon, HeartIcon, BanknotesIcon, ReceiptPercentIcon } from "@heroicons/react/24/outline";
+import { ShoppingCartIcon, CurrencyDollarIcon, HashtagIcon, UserIcon, XMarkIcon, PlusIcon, HeartIcon, BanknotesIcon, ReceiptPercentIcon, TrashIcon, SquaresPlusIcon } from "@heroicons/react/24/outline";
 import TextareaAutoSize from "react-textarea-autosize";
 import { useState, useRef } from "react";
 import { PAYMENTMETHOD } from "./ReceiptJsonParser";
@@ -64,6 +64,16 @@ function AssigneeBubble({ friendIndex, onClick = () => { }, icon = null }) {
                 </div> : null
             }
         </div>
+    )
+}
+
+function TableButton({ className = '', onClick = () => { }, children }) {
+    return (
+        <button
+            onClick={onClick}
+            className={"border border-slate-400 rounded-md w-full font-light p-1 flex flex-row items-center gap-1 place-content-center " + className}>
+            {children}
+        </button>
     )
 }
 
@@ -189,11 +199,28 @@ export default function ReceiptData() {
         }
 
         return (
-            <tr className="border-y border-slate-300">
+            <tr className="border-y border-slate-200">
+                {
+                    deletionMode ?
+                        <td className="p-1">
+                            <input
+                                type="checkbox"
+                                className="w-full h-full"
+                                defaultChecked={selectedRows.includes(dataRowIndex)}
+                                onChange={e => {
+                                    if (e.target.checked) {
+                                        setSelectedRows([...selectedRows, dataRowIndex]);
+                                    } else {
+                                        setSelectedRows(selectedRows.filter(i => i !== dataRowIndex));
+                                    }
+                                }} />
+                        </td> : null
+                }
                 <td className="p-1">
                     <TextareaAutoSize
                         key={`textarea-${dataRowIndex}`}
                         defaultValue={m_name}
+                        placeholder="Enter item name"
                         onChange={e => setName(e.target.value)}
                         onBlur={e => changeItemName(e.target.value, dataRowIndex)}
                         className="w-full bg-seasalt align-top" />
@@ -361,6 +388,38 @@ export default function ReceiptData() {
         }
     }
 
+    // add row
+    const addRow = () => {
+        const new_items = [...items];
+        new_items.push({
+            name: "",
+            price: 0.00,
+            quantity: 0,
+            assigneesIndexes: []
+        });
+        setItems(new_items);
+    };
+    // deletion mode
+    const [deletionMode, setDeletionMode] = useState(false);
+    const [selectedRows, setSelectedRows] = useState([]);
+    const openDeletionMode = () => {
+        setDeletionMode(true);
+        setSelectedRows([]);
+    };
+    const closeDeletionMode = () => {
+        setDeletionMode(false);
+        setSelectedRows([]);
+    };
+    // delete rows
+    const deleteRows = (indexes) => {
+        let new_items = [...items];
+        new_items = new_items.filter((item, index) => {
+            return !indexes.includes(index);
+        });
+        setItems(new_items);
+        closeDeletionMode();
+    };
+
     return (
         <NavBarLayout navBarText="Receipt" className="text-sm">
             {
@@ -370,7 +429,13 @@ export default function ReceiptData() {
             <div className="w-full px-5 flex flex-col gap-5">
                 <table className="w-full table-fixed border-collapse">
                     <thead>
-                        <tr className="border-b border-slate-300 text-xs">
+                        <tr className="border-b border-slate-400 text-xs">
+                            {
+                                deletionMode ?
+                                    <th className="w-1/12 text-center p-1">
+                                    </th>
+                                    : null
+                            }
                             <th className="w-4/12 text-start font-light p-1 overflow-clip">
                                 <div className="flex flex-row items-center">
                                     <ShoppingCartIcon className="h-3 w-3 mr-1" />
@@ -406,10 +471,77 @@ export default function ReceiptData() {
                         </tr>
                     </thead>
                     <tbody>
+                        {/** Receipt Items */}
                         {items.map((item, index) => {
-                            return <ReceiptDataRow key={`receipt-data-row-${index}`} name={item.name} price={item.price} quantity={item.qty} assigneesIndexes={item.assigneesIndexes} dataRowIndex={index} />;
+                            return <ReceiptDataRow
+                                key={`receipt-data-row-${index}`}
+                                name={item.name}
+                                price={item.price}
+                                quantity={item.qty}
+                                assigneesIndexes={item.assigneesIndexes}
+                                dataRowIndex={index} />;
                         })}
+                        <tr className="border-b border-slate-400">
+                            {
+                                deletionMode ?
+                                    <td className="p-1">
+                                    </td>
+                                    : null
+                            }
+                            {
+                                deletionMode ?
+                                    <td className="p-1" colSpan={2}>
+                                        <TableButton onClick={closeDeletionMode}>
+                                            <div className="w-3 h-3">
+                                                <XMarkIcon className="w-3 h-3" />
+                                            </div>
+                                            <div>
+                                                Cancel
+                                            </div>
+                                        </TableButton>
+                                    </td> :
+                                    <td className="p-1" colSpan={2}>
+                                        <TableButton onClick={addRow}>
+                                            <div className="w-3 h-3">
+                                                <SquaresPlusIcon className="w-3 h-3" />
+                                            </div>
+                                            <div>
+                                                Add Item
+                                            </div>
+                                        </TableButton>
+                                    </td>
+                            }
+                            {
+                                deletionMode ?
+                                    <td className="p-1" colSpan={2}>
+                                        <TableButton onClick={() => deleteRows(selectedRows)}>
+                                            <div className="w-3 h-3">
+                                                <TrashIcon className="w-3 h-3" />
+                                            </div>
+                                            <div>
+                                                Confirm
+                                            </div>
+                                        </TableButton>
+                                    </td> :
+                                    <td className="p-1" colSpan={2}>
+                                        <TableButton onClick={openDeletionMode}>
+                                            <div className="w-3 h-3">
+                                                <TrashIcon className="w-3 h-3" />
+                                            </div>
+                                            <div>
+                                                Delete Items
+                                            </div>
+                                        </TableButton>
+                                    </td>
+                            }
+                        </tr>
                         <tr>
+                            {
+                                deletionMode ?
+                                    <td className="p-1">
+                                    </td>
+                                    : null
+                            }
                             <td className="p-1" colSpan={2}>
                                 <div className="flex flex-row gap-1 items-center font-light">
                                     <BanknotesIcon className="h-3 w-3" />
@@ -448,6 +580,12 @@ export default function ReceiptData() {
                             </td>
                         </tr>
                         <tr>
+                            {
+                                deletionMode ?
+                                    <td className="p-1">
+                                    </td>
+                                    : null
+                            }
                             <td className="p-1" colSpan={2}>
                                 <div className="flex flex-row gap-1 items-center font-light">
                                     <div className="w-3">
@@ -488,6 +626,12 @@ export default function ReceiptData() {
                             </td>
                         </tr>
                         <tr>
+                            {
+                                deletionMode ?
+                                    <td className="p-1">
+                                    </td>
+                                    : null
+                            }
                             <td className="p-1" colSpan={2}>
                                 <div className="flex flex-row gap-1 items-center font-light">
                                     <ReceiptPercentIcon className="h-3 w-3" />
@@ -525,36 +669,40 @@ export default function ReceiptData() {
                             </td>
                         </tr>
                         <tr>
+                            {
+                                deletionMode ?
+                                    <td className="p-1">
+                                    </td>
+                                    : null
+                            }
                             <td className="p-1" colSpan={2}>
-                                <button
-                                    onClick={updateTax}
-                                    className="border border-slate-400 rounded-md w-full font-light p-1">
-                                    <div className="flex flex-row items-center gap-1 place-content-center">
-                                        <div className="w-3 h-3">
-                                            <BanknotesIcon className="w-3 h-3" />
-                                        </div>
-                                        <div>
-                                            Calculate Tax
-                                        </div>
+                                <TableButton onClick={updateTax}>
+                                    <div className="w-3 h-3">
+                                        <BanknotesIcon className="w-3 h-3" />
                                     </div>
-                                </button>
+                                    <div>
+                                        Calculate Tax
+                                    </div>
+                                </TableButton>
                             </td>
                             <td className="p-1" colSpan={2}>
-                                <button
-                                    onClick={updateSvc}
-                                    className="border border-slate-400 rounded-md w-full font-light p-1">
-                                    <div className="flex flex-row items-center gap-1 place-content-center">
-                                        <div className="w-3 h-3">
-                                            <HeartIcon className="w-3 h-3" />
-                                        </div>
-                                        <div>
-                                            Calculate Svc
-                                        </div>
+                                <TableButton onClick={updateSvc}>
+                                    <div className="w-3 h-3">
+                                        <HeartIcon className="w-3 h-3" />
                                     </div>
-                                </button>
+                                    <div>
+                                        Calculate Svc
+                                    </div>
+                                </TableButton>
                             </td>
                         </tr>
-                        <tr className="border-t border-slate-300">
+                        <tr className="border-t border-slate-400">
+                            {
+                                deletionMode ?
+                                    <td className="p-1">
+                                    </td>
+                                    : null
+                            }
                             <td className="p-1" colSpan={2}>
                                 <div>
                                     Total
@@ -579,6 +727,7 @@ export default function ReceiptData() {
                         </tr>
                     </tbody>
                 </table>
+
                 <Button className="" onClick={() => { }}>Save</Button>
             </div>
 
