@@ -28,3 +28,4 @@ build/
 media/images/
 ocr/model/data.json
 ocr/model/text.csv
+media/media/images

@@ -3,10 +3,15 @@ from django.contrib.auth.models import User
 
 # Create your models here.
 class Receipt(models.Model):
+    id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100)
-    image = models.ImageField(upload_to='images/')
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    image = models.ImageField(upload_to='media/images/')
+    processed_data = models.CharField(max_length=2000,null=True,blank=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
 
+    def save_model(self, request, obj, form, change):
+        obj.created_by = request.user
+        super().save_model(request, obj, form, change)
 
     def __str__(self):
         return self.name

@@ -58,7 +58,7 @@ export default function Upload() {
       .then(res => {
         const receiptData = receiptJsonParser(res.data.data);
         // navigate to receipt_data page
-        navigate("/receipt_data", { state: { receiptData: receiptData } });
+        navigate("/receipt_data", { state: { id: res.data.id, receiptData: receiptData } });
       })
       .catch(err => console.error(err));
   };

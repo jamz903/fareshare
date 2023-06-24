@@ -18,13 +18,14 @@ import pandas as pd
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from .forms import *
+from .models import *
+from django.contrib.auth.models import User
 
 class OCRView(APIView):
     # allow anyone to access this endpoint
     # TODO: delete this when we can access this endpoint with authentication in the app
-    authentication_classes = [];
-    permission_classes = [];
-
+    #authentication_classes = [];
+    #permission_classes = [];
     # def get(self, request):
     #     data = {"json path": False}
 
@@ -46,7 +47,8 @@ class OCRView(APIView):
     parser_classes = (MultiPartParser, FormParser)
 
     def get(self, request, *args, **kwargs):
-        receipt = Receipt.objects.all()
+        user = self.request.user
+        receipt = Receipt.objects.filter(created_by=user)
         serializer = ReceiptSerializer(receipt, many=True)
         return Response(serializer.data)
     
@@ -54,7 +56,11 @@ class OCRView(APIView):
         data = {"json path": False}
         receipt_serializer = ReceiptSerializer(data=request.data)
         if receipt_serializer.is_valid():
-            receipt_serializer.save()
+            try:
+                user = request.user
+                receipt = receipt_serializer.save(created_by=user)
+            except:
+                receipt = receipt_serializer.save()
             image = receipt_serializer.data['image']
             os.system("python3 ocr/model/receipt_detection.py --image " + image[1:])
             if exists("ocr/model/text.csv"):
@@ -63,7 +69,7 @@ class OCRView(APIView):
                 df.to_json("ocr/model/data.json")
                 f = open("ocr/model/data.json")
                 json_data = json.load(f)
-                data.update({"json path": True, "data": json_data})
+                data.update({"json path": True, "data": json_data, "id": receipt.pk})
                 return JsonResponse(data)
             else:
               data["error"] = "No csv was uploaded"
@@ -73,3 +79,17 @@ class OCRView(APIView):
             print('error', receipt_serializer.errors)
             return Response(receipt_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+class ReceiptDataView(APIView):
+    parser_classes = (MultiPartParser, FormParser)
+
+    def get(self, request, *args, **kwargs):
+        form = ReceiptForm(data=request.POST, instance=request.user)
+        return Response(form.data)
+    
+    def post(self, request, *args, **kwargs):
+        data = request.data
+        jsonData = json.dumps(data['processed_data'])
+        receipt = Receipt.objects.get(id=data['id'])
+        receipt.processed_data = jsonData
+        receipt.save()
+        return Response(data)

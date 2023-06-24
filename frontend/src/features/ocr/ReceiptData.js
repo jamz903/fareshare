@@ -6,6 +6,8 @@ import { PAYMENTMETHOD } from "./ReceiptJsonParser";
 import Button from "../../components/Button";
 // router
 import { useLocation } from "react-router-dom";
+import axios from 'axios';
+import Cookies from 'js-cookie';
 
 const TAX_RATE = 0.08;
 const SVC_RATE = 0.1;
@@ -80,7 +82,7 @@ function TableButton({ className = '', onClick = () => { }, children }) {
 export default function ReceiptData() {
 
     const location = useLocation();
-    let { receiptData } = location.state ? location.state : {};
+    let { id, receiptData } = location.state ? location.state : {};
 
     // dummy receipt data
     if (!receiptData) {
@@ -419,6 +421,20 @@ export default function ReceiptData() {
         setItems(new_items);
         closeDeletionMode();
     };
+    //save receipt data to database
+    const saveData = () => {
+        let form_data = new FormData();
+        form_data.append('id', id);
+        form_data.append('processed_data', JSON.stringify(receiptData));
+        let url = `/ocr/receipt_data/`;
+        return axios.post(url, form_data, {
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'multipart/form-data',
+                'X-CSRFToken': Cookies.get('csrftoken'),
+            }
+        });
+    }
 
     return (
         <NavBarLayout navBarText="Receipt" className="text-sm">
@@ -728,7 +744,7 @@ export default function ReceiptData() {
                     </tbody>
                 </table>
 
-                <Button className="" onClick={() => { }}>Save</Button>
+                <Button className="" onClick={saveData}>Save</Button>
             </div>
 
         </NavBarLayout>
