@@ -41,7 +41,9 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'accounts', #accounts app handles user authentication
-    'ocr', #app name
+    'ocr', #handles ocr related tasks, such as uploading images, analysing them, etc.
+    'friends', #handles friends list, friend requests, etc.
+    'profile', #handles user profile settings
 ]
 
 MIDDLEWARE = [
