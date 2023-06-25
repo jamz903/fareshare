@@ -14,6 +14,18 @@ export default function SideDrawer() {
         dispatch(setDrawerOpen(false));
     }
 
+    const handleLogout = () => {
+        closeDrawer();
+        dispatch(logoutUser({}))
+            .unwrap()
+            .then((result) => {
+                navigate('/login');
+            })
+            .catch((error) => {
+                alert("Error: " + error.message);
+            });
+    }
+
     const openClass = open ? 'translate-x-0' : '-translate-x-full';
     const posClasses = "sm:w-1/3 w-[80%] h-full fixed top-0 left-0 bot-0 z-40 ";
     const transClasses = "transition-all duration-300 ease-in-out ";
@@ -39,7 +51,7 @@ export default function SideDrawer() {
                     {/* <SideDrawerButton onClick={() => { navigate('/profile'); closeDrawer(); }}>Profile</SideDrawerButton> */}
                     <SideDrawerButton onClick={() => { navigate('/friends'); closeDrawer(); }}>Friends</SideDrawerButton>
                     {/* <SideDrawerButton onClick={() => { navigate('/settings'); closeDrawer(); }}>Settings</SideDrawerButton> */}
-                    <SideDrawerButton onClick={() => { dispatch(logoutUser()); closeDrawer(); }}>Logout</SideDrawerButton>
+                    <SideDrawerButton onClick={() => { handleLogout(); }}>Logout</SideDrawerButton>
                 </div>
             </div>
             <div className={divBg + hiddenClass} onClick={closeDrawer} data-testid="id">

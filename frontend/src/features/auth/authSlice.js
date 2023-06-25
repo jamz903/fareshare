@@ -78,7 +78,6 @@ export const loginUser = createAsyncThunk(
 export const logoutUser = createAsyncThunk(
     'auth/logout',
     async ({ rejectWithValue, dispatch }) => {
-        console.log('logoutUser');
         // set axios config headers
         const config = {
             headers: {
