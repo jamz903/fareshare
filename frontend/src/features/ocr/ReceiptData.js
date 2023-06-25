@@ -1,13 +1,16 @@
 import NavBarLayout from "../../layouts/NavBarLayout";
 import { ShoppingCartIcon, CurrencyDollarIcon, HashtagIcon, UserIcon, XMarkIcon, PlusIcon, HeartIcon, BanknotesIcon, ReceiptPercentIcon, TrashIcon, SquaresPlusIcon } from "@heroicons/react/24/outline";
 import TextareaAutoSize from "react-textarea-autosize";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { PAYMENTMETHOD } from "./ReceiptJsonParser";
 import Button from "../../components/Button";
 import updateReceiptObject from "./UpdateReceiptObject";
 // router
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
+// axios
+import axios from "axios";
+import Cookies from "js-cookie";
 
 const TAX_RATE = 0.08;
 const SVC_RATE = 0.1;
@@ -25,8 +28,8 @@ const obtainRandomColorSet = () => {
     return COLOR_SETS[Math.floor(Math.random() * COLOR_SETS.length)];
 }
 
-// FRIENDS list, to be obtained from server
-const FRIENDS = [
+// dummy friend list
+const dummy_friend_list = [
     {
         name: "chihuahuasdad",
     },
@@ -45,20 +48,15 @@ const FRIENDS = [
     {
         name: "annxbelle"
     },
-].sort((a, b) => a.name.localeCompare(b.name)); // sort friend list
+]
 
-// give everyone a color
-FRIENDS.forEach((friend, index) => {
-    friend.colorSet = obtainRandomColorSet();
-});
-
-function AssigneeBubble({ friendIndex, onClick = () => { }, icon = null }) {
-    const colorSet = FRIENDS[friendIndex].colorSet;
-    const friend = FRIENDS[friendIndex];
+function AssigneeBubble({ friend, onClick = () => { }, icon = null }) {
+    const colorSet = friend ? friend.colorSet : '';
+    const username = friend ? friend.username : '';
     return (
         <div className={`flex flex-row p-1 px-3 items-center place-content-between rounded-full ${colorSet}`} onClick={onClick}>
             <div className="text-ellipsis overflow-hidden">
-                {friend.name}
+                {username}
             </div>
             {icon ?
                 <div className="w-4">
@@ -80,6 +78,41 @@ function TableButton({ className = '', onClick = () => { }, children }) {
 }
 
 export default function ReceiptData() {
+
+    const [friends, setFriends] = useState([]);
+
+    const getFriends = async () => {
+        // obtain friends
+        // axios config
+        // set axios config headers
+        const config = {
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'X-CSRFToken': Cookies.get('csrftoken'),
+            }
+        }
+        const response = await axios.get('/friends/get-friends', config)
+            .then(res => {
+                return res.data
+            }).catch(err => {
+                console.err(err);
+            })
+        let friendList = response.friends
+        friendList = friendList.sort((a, b) => a.username.localeCompare(b.username))
+        friendList.unshift({
+            username: "Me",
+        })
+        friendList.forEach((friend, index) => {
+            friend.colorSet = obtainRandomColorSet();
+        });
+        setFriends(friendList);
+    }
+
+    useEffect(() => {
+        getFriends();
+    }, []);
+
     const navigate = useNavigate();
 
     const location = useLocation();
@@ -179,7 +212,7 @@ export default function ReceiptData() {
         const [m_quantity, setQuantity] = useState(quantity);
 
         // compute friendIndexes not in assigneesIndexes
-        const nonAssigneesIndexes = FRIENDS.map((friend, index) => {
+        const nonAssigneesIndexes = friends.map((friend, index) => {
             if (!assigneesIndexes.includes(index)) {
                 return index;
             } else {
@@ -262,7 +295,7 @@ export default function ReceiptData() {
                                     assigneesIndexes.map((friendIndex, index) => {
                                         return <AssigneeBubble
                                             key={`assignee-${index}`}
-                                            friendIndex={friendIndex}
+                                            friend={friends[friendIndex]}
                                             onClick={() => removeAssigneeIndex(friendIndex)}
                                             icon={<XMarkIcon className="w-4 h-4" />}
                                         />
@@ -278,8 +311,8 @@ export default function ReceiptData() {
                                     {nonAssigneesIndexes
                                         .map((friendIndex, index) => {
                                             return <AssigneeBubble
-                                                key={`FRIENDS-not-in-assignee-${index}`}
-                                                friendIndex={friendIndex}
+                                                key={`friends-not-in-assignee-${index}`}
+                                                friend={friends[friendIndex]}
                                                 onClick={() => addAssigneeIndex(friendIndex)}
                                                 icon={<PlusIcon className="w-4 h-4" />} />
                                         })}
@@ -290,7 +323,7 @@ export default function ReceiptData() {
                         : null}
                     <div className="flex flex-col gap-1">
                         {assigneesIndexes.map((friendIndex, index) => {
-                            return <AssigneeBubble key={index} friendIndex={friendIndex} />
+                            return <AssigneeBubble key={index} friend={friends[friendIndex]} />
                         })}
                     </div>
                 </td>

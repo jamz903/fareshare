@@ -6,11 +6,9 @@ function Home() {
     const username = useSelector(state => state.auth.username);
 
     return (
-        <RequireAuth>
-            <NavBarLayout navBarText='fareshare'>
-                <h1>Welcome back, {username}.</h1>
-            </NavBarLayout>
-        </RequireAuth>
+        <NavBarLayout navBarText='fareshare'>
+            <h1>Welcome back, {username}.</h1>
+        </NavBarLayout>
     );
 }
 
