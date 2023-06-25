@@ -35,9 +35,10 @@ export default function SideDrawer() {
                     <SideDrawerButton onClick={() => { navigate('/camera'); closeDrawer(); }}>Capture Receipt</SideDrawerButton>
                     <SideDrawerButton onClick={() => { navigate('/upload'); closeDrawer(); }}>Upload Receipt</SideDrawerButton>
                     <SideDrawerButton onClick={() => { navigate('/home'); closeDrawer(); }}>Home</SideDrawerButton>
-                    <SideDrawerButton onClick={() => { navigate('/profile'); closeDrawer(); }}>Profile</SideDrawerButton>
+                    <SideDrawerButton onClick={() => { navigate('/receipts'); closeDrawer(); }}>Receipts</SideDrawerButton>
+                    {/* <SideDrawerButton onClick={() => { navigate('/profile'); closeDrawer(); }}>Profile</SideDrawerButton> */}
                     <SideDrawerButton onClick={() => { navigate('/friends'); closeDrawer(); }}>Friends</SideDrawerButton>
-                    <SideDrawerButton onClick={() => { navigate('/settings'); closeDrawer(); }}>Settings</SideDrawerButton>
+                    {/* <SideDrawerButton onClick={() => { navigate('/settings'); closeDrawer(); }}>Settings</SideDrawerButton> */}
                     <SideDrawerButton onClick={() => { dispatch(logoutUser()); closeDrawer(); }}>Logout</SideDrawerButton>
                 </div>
             </div>

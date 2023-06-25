@@ -27,7 +27,7 @@ function Home() {
             .then(res => {
                 return res.data
             }).catch(err => {
-                console.err(err)
+                console.error(err)
             })
         setExpense(calculateExpenses(response));
     }
