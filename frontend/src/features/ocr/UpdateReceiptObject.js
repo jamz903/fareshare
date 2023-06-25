@@ -1,20 +1,16 @@
 /** 
- * This function uploads a file to the server. 
+ * This function updates the receipt object in the server. 
  * Returns a promise that resolves to the response from the server.
  */
 
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
-export default async function uploadFileToServer(name, image) {
+export default async function updateReceiptObject(id, receiptData) {
     let form_data = new FormData();
-    //if name doesn't have an extension, add one
-    if (!name.includes('.')) {
-        name += '.jpg';
-    }
-    form_data.append('image', image, name);
-    form_data.append('name', name);
-    let url = `/ocr/upload/`;
+    form_data.append('id', id);
+    form_data.append('processed_data', JSON.stringify(receiptData));
+    let url = `/ocr/receipt_data/`;
     return axios.post(url, form_data, {
         headers: {
             'Accept': 'application/json',

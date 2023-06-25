@@ -83,8 +83,9 @@ class ReceiptDataView(APIView):
     parser_classes = (MultiPartParser, FormParser)
 
     def get(self, request, *args, **kwargs):
-        form = ReceiptForm(data=request.POST, instance=request.user)
-        return Response(form.data)
+        data = request.data
+        receipt = Receipt.objects.get(id=data['id'])
+        return JsonResponse({"processed_data": receipt.processed_data, "id": receipt.pk, "name": receipt.name})
     
     def post(self, request, *args, **kwargs):
         data = request.data
