@@ -6,8 +6,9 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
-export default async function updateReceiptObject(id, receiptData) {
+export default async function updateReceiptObject(my_expenses, id, receiptData) {
     let form_data = new FormData();
+    form_data.append('my_expenses', my_expenses);
     form_data.append('id', id);
     form_data.append('processed_data', JSON.stringify(receiptData));
     let url = `/ocr/receipt_data/`;

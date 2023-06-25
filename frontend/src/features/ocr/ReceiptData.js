@@ -470,9 +470,10 @@ export default function ReceiptData() {
                 change: receiptData.other.change,
             }
         }
-
+        //placeholder
+        const my_expenses = 15;
         e.preventDefault();
-        updateReceiptObject(id, new_receipt_data)
+        updateReceiptObject(my_expenses, id, new_receipt_data)
             .then(() => {
                 navigate("/receipts");
             })
