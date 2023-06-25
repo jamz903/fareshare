@@ -92,5 +92,6 @@ class ReceiptDataView(APIView):
         jsonData = json.dumps(data['processed_data'])
         receipt = Receipt.objects.get(id=data['id'])
         receipt.processed_data = jsonData
+        receipt.my_expenses = data['my_expenses']
         receipt.save()
         return Response(data)

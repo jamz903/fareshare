@@ -6,7 +6,6 @@ import React from 'react';
 import NavBarLayout from '../../layouts/NavBarLayout';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import receiptJsonParser from './ReceiptJsonParser';
 
 export default function ViewHistory() {
     const [data, setData] = React.useState([]);
@@ -21,7 +20,7 @@ export default function ViewHistory() {
         setData(response.data);
     }
 
-    if (data == null) {
+    if (data == []) {
         <h1>You currently have no receipts! Upload one to get started</h1>
     }
 
@@ -47,6 +46,8 @@ export default function ViewHistory() {
                             onClick={(e) => handleClick(data.id)}
                             class="block w-full cursor-pointer hover:bg-secondary hover:opacity-90 rounded-lg bg-primary-100 p-4 text-primary-600">
                             { data.name }
+                            <br />
+                            <div>Spent: ${ data.my_expenses }</div>
                         </button>
                     )
                 })}

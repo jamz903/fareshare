@@ -7,6 +7,7 @@ class Receipt(models.Model):
     name = models.CharField(max_length=100)
     image = models.ImageField(upload_to='images/')
     processed_data = models.CharField(max_length=2000,null=True,blank=True)
+    my_expenses = models.FloatField(null=True, blank=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
 
     def save_model(self, request, obj, form, change):

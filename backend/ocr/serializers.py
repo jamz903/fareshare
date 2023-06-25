@@ -5,4 +5,4 @@ class ReceiptSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(required=False)
     class Meta:
         model = Receipt
-        fields = ['id', 'name', 'image', 'processed_data', 'created_by']
+        fields = ['id', 'name', 'image', 'processed_data', 'my_expenses', 'created_by']
