@@ -4,10 +4,10 @@ import TextareaAutoSize from "react-textarea-autosize";
 import { useState, useRef } from "react";
 import { PAYMENTMETHOD } from "./ReceiptJsonParser";
 import Button from "../../components/Button";
+import updateReceiptObject from "./UpdateReceiptObject";
 // router
+import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
-import axios from 'axios';
-import Cookies from 'js-cookie';
 
 const TAX_RATE = 0.08;
 const SVC_RATE = 0.1;
@@ -80,10 +80,11 @@ function TableButton({ className = '', onClick = () => { }, children }) {
 }
 
 export default function ReceiptData() {
+    const navigate = useNavigate();
 
     const location = useLocation();
     let { id, receiptData } = location.state ? location.state : {};
-
+    console.log(receiptData);
     // dummy receipt data
     if (!receiptData) {
         receiptData = {
@@ -318,7 +319,7 @@ export default function ReceiptData() {
     // change the quantity of an item
     const changeItemQuantity = (newQuantity, index) => {
         const new_items = [...items];
-        new_items[index].quantity = newQuantity;
+        new_items[index].qty = newQuantity;
         setItems(new_items);
     };
     // change the assignees of an item
@@ -422,19 +423,28 @@ export default function ReceiptData() {
         closeDeletionMode();
     };
     //save receipt data to database
-    const saveData = () => {
-        let form_data = new FormData();
-        form_data.append('id', id);
-        form_data.append('processed_data', JSON.stringify(receiptData));
-        let url = `/ocr/receipt_data/`;
-        return axios.post(url, form_data, {
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'multipart/form-data',
-                'X-CSRFToken': Cookies.get('csrftoken'),
+    const saveData = (e) => {
+        const new_receipt_data = {
+            items: items,
+            other: {
+                subTotal: receiptData.other.subTotal,
+                total: totalPrice(),
+                tax: tax,
+                serviceCharge: serviceCharge,
+                discount: discount,
+                paymentMethod: receiptData.other.paymentMethod,
+                paidAmount: receiptData.other.paidAmount,
+                change: receiptData.other.change,
             }
-        });
-    }
+        }
+
+        e.preventDefault();
+        updateReceiptObject(id, new_receipt_data)
+            .then(() => {
+                navigate("/receipts");
+            })
+            .catch(err => console.error(err));
+    };
 
     return (
         <NavBarLayout navBarText="Receipt" className="text-sm">

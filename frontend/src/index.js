@@ -22,6 +22,7 @@ import Camera from './features/ocr/Camera';
 import Splash from './features/splash/Splash';
 import Upload from './features/ocr/Upload';
 import ReceiptData from './features/ocr/ReceiptData';
+import ViewHistory from './features/ocr/ViewHistory';
 import Friends from './features/friends/Friends';
 
 // router configuration
@@ -70,6 +71,10 @@ const router = createBrowserRouter([
       {
         path: "/friends",
         element: <Friends />
+      },
+      {
+        path: "/receipts",
+        element: <ViewHistory />
       },
       {
         /* show splash page when the path is empty */

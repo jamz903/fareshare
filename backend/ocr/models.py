@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 class Receipt(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100)
-    image = models.ImageField(upload_to='media/images/')
+    image = models.ImageField(upload_to='images/')
     processed_data = models.CharField(max_length=2000,null=True,blank=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
 
