@@ -1,39 +1,10 @@
 import NavBarLayout from "../../layouts/NavBarLayout";
 import SmallButton from "../../components/SmallButton";
 import { XMarkIcon, CheckIcon, PlusIcon } from "@heroicons/react/24/outline";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import CSRFToken from "../../components/CSRFToken";
 import axios from "axios";
-
-// obtain friends and requests from server
-// dummy friends data
-const friends = [
-    /*
-    {
-        profilePic: 'https://images.unsplash.com/photo-1492681290082-e932832941e6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1771&q=80',
-        username: 'darielwilbert',
-    },
-    {
-        profilePic: 'https://images.unsplash.com/photo-1492681290082-e932832941e6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1771&q=80',
-        username: 'notbingsu',
-    },
-    {
-        profilePic: 'https://images.unsplash.com/photo-1492681290082-e932832941e6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1771&q=80',
-        username: 'annxbelle',
-    }, */
-]
-
-const requests = [
-    /*
-    {
-        profilePic: 'https://images.unsplash.com/photo-1492681290082-e932832941e6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1771&q=80',
-        username: 'dioclei',
-    },
-    {
-        profilePic: 'https://images.unsplash.com/photo-1492681290082-e932832941e6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1771&q=80',
-        username: 'bigbraintoh',
-    }, */
-]
+import Cookies from "js-cookie";
 
 // child components
 function FriendRow({ username, src = '', onRemove = () => { } }) {
@@ -74,33 +45,103 @@ function FriendRequestRow({ username, src = '', onAccept = () => { }, onDecline 
 }
 
 export default function Friends() {
+    // set axios config headers
+    const config = {
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'X-CSRFToken': Cookies.get('csrftoken'),
+        }
+    }
+    // obtain friends and requests from server
+    const [friends, setFriends] = useState([])
+    const [requests, setRequests] = useState([])
+    const getFriends = async () => {
+        const response = await axios.get('/friends/get-friends', config);
+        if (response.error) {
+            console.err(response.error)
+        } else {
+            if (response.data.friends) {
+                setFriends(response.data.friends);
+            }
+        }
+    }
+    const getRequests = async () => {
+        const response = await axios.get('/friends/get-requests', config);
+        if (response.error) {
+            console.err(response.error)
+        } else {
+            if (response.data.friend_requests) {
+                setRequests(response.data.friend_requests);
+            }
+        }
+    }
+    useEffect(() => {
+        getFriends();
+        getRequests();
+    }, [])
     // helper functions
-    const acceptFriend = (username) => {
-
+    const acceptFriend = async (username) => {
+        const response = await axios.post('/friends/accept-request', { username }, config)
+            .then(res => {
+                return res.data;
+            }).catch(err => {
+                console.err(err)
+            });
+        if (response.success) {
+            getFriends();
+            getRequests();
+        }
     }
-    const declineFriend = (username) => {
-
+    const declineFriend = async (username) => {
+        const response = await axios.post('/friends/reject-request', { username }, config)
+            .then(res => {
+                return res.data
+            }).catch(err => {
+                console.err(err)
+            });
+        if (response.success) {
+            getRequests();
+        }
     }
-    const removeFriend = (username) => {
+    const removeFriend = async (username) => {
         if (window.confirm(`Are you sure you want to remove ${username} from your friend list?`)) {
-
+            const response = await axios.post('/friends/remove-friend', { username }, config)
+                .then(res => {
+                    return res.data
+                }).catch(err => {
+                    console.err(err)
+                });
+            if (response.success) {
+                getFriends();
+            }
         }
     }
     const [searchUsername, setSearchUsername] = useState('')
     const [friendRequestStatus, setFriendRequestStatus] = useState('' /* 'success' | 'error' */)
+    const borderColor = friendRequestStatus === 'success' ? 'border-green' : friendRequestStatus === 'error' ? 'border-red' : 'border-primary';
+    const [errorMessage, setErrorMessage] = useState('')
     const searchUsernameRef = useRef(null)
+
     const searchFriend = async (username) => {
         if (username === '') return;
         // reset search bar
         searchUsernameRef.current.value = '';
         setSearchUsername('');
         // search for friend
-        const response = await axios.post('/friends/add', { username })
+        const response = await axios.post('/friends/send-request', { username }, config)
             .then(res => {
+                console.log(res.data);
                 return res.data;
             }).catch(err => {
                 console.err(err)
             });
+        if (response.error) {
+            setErrorMessage(response.error)
+            setFriendRequestStatus('error')
+        } else if (response.success) {
+            setFriendRequestStatus('success')
+        }
     }
 
     return (
@@ -115,7 +156,7 @@ export default function Friends() {
                         <input
                             ref={searchUsernameRef}
                             placeholder="Enter a username"
-                            className="border-2 border-primary rounded-lg px-2 grow mr-5"
+                            className={"border-2 rounded-lg px-2 grow mr-5 " + borderColor}
                             defaultValue={searchUsername}
                             onChange={(e) => {
                                 setSearchUsername(e.target.value)
@@ -134,7 +175,7 @@ export default function Friends() {
                             </div>
                         ) : friendRequestStatus === 'error' ? (
                             <div className="text-sm text-red mt-1">
-                                Error sending friend request!
+                                {errorMessage ? errorMessage : 'Error sending friend request!'}
                             </div>
                         ) : null
                     }
