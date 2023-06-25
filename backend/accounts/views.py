@@ -3,6 +3,7 @@ from rest_framework import permissions
 from rest_framework.response import Response
 from django.contrib import auth
 from django.contrib.auth.models import User # use Django's built-in user model
+from profile.models import Profile
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 from django.utils.decorators import method_decorator
 from rest_framework import status
@@ -44,6 +45,9 @@ class SignupView(APIView):
                     else:
                         # create user
                         User.objects.create_user(username=username, password=password)
+                        # create user profile
+                        newProfile = Profile(user=User.objects.get(username=username))
+                        newProfile.save()
                         return Response({'success': 'User created successfully'})
             else:
                 return Response({'error': 'Passwords do not match'}, status=status.HTTP_404_NOT_FOUND)

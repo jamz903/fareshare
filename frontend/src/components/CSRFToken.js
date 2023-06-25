@@ -11,16 +11,11 @@ const CSRFToken = () => {
     const [token, setToken] = React.useState('');
 
     React.useEffect(() => {
-        const fetchData = async () => {
-            try {
-                await axios.get(`/accounts/csrf_cookie`);
-            } catch (err) {
-                console.log(err);
-            }
-        }
-
-        fetchData();
-        setToken(Cookies.get('csrftoken'));
+        axios.get(`/accounts/csrf_cookie`).then(() => {
+            setToken(Cookies.get('csrftoken'));
+        }).catch((err) => {
+            console.error(err);
+        });
     }, []);
 
     return (

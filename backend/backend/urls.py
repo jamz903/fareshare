@@ -29,6 +29,8 @@ urlpatterns = [
     path('accounts/', include('accounts.urls')),
     path('api/', include(router.urls)),
     path('ocr/', include('ocr.urls')),
+    path('friends/', include('friends.urls')),
+    path('profile/', include('profile.urls')),
 ]
 
 # catch all url path for react router
