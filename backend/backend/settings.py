@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'rest_framework',
+    'django_extensions', #for running https
     'accounts', #accounts app handles user authentication
     'ocr', #handles ocr related tasks, such as uploading images, analysing them, etc.
     'friends', #handles friends list, friend requests, etc.
