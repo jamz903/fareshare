@@ -455,6 +455,23 @@ export default function ReceiptData() {
         setItems(new_items);
         closeDeletionMode();
     };
+
+    // calculate personal expenses
+    const calculatePersonalExpenses = (receipt_data) => {
+        const my_items = receipt_data.items.filter(item => {
+            if (item.assigneesIndexes && item.assigneesIndexes.includes(0)) {
+                return true;
+            } else {
+                return false;
+            }
+        });
+        let my_expenses = 0;
+        my_items.forEach(item => {
+            my_expenses += parseFloat(item.price) / item.assigneesIndexes.length;
+        });
+        return my_expenses;
+    };
+
     //save receipt data to database
     const saveData = (e) => {
         const new_receipt_data = {
@@ -470,8 +487,8 @@ export default function ReceiptData() {
                 change: receiptData.other.change,
             }
         }
-        //placeholder
-        const my_expenses = 15;
+        // calculate personal expenses
+        const my_expenses = calculatePersonalExpenses(new_receipt_data);
         e.preventDefault();
         updateReceiptObject(my_expenses, id, new_receipt_data)
             .then(() => {
