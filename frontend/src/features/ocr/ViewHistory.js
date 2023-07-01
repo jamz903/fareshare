@@ -20,7 +20,7 @@ export default function ViewHistory() {
         setData(response.data);
     }
 
-    if (data == []) {
+    if (data === []) {
         <h1>You currently have no receipts! Upload one to get started</h1>
     }
 
@@ -30,7 +30,7 @@ export default function ViewHistory() {
 
     function getData(data, id) {
         for (var item in data) {
-            if (data[item].id == id) {
+            if (data[item].id === id) {
                 return data[item].processed_data
             }
         }
@@ -39,15 +39,15 @@ export default function ViewHistory() {
 
     return (
         <NavBarLayout navBarText="Receipts" className="text-sm">
-            <div class="w-96">
-                { data && data.map(data => {
-                    return(
-                        <button key={ data.id }
+            <div className="w-96">
+                {data && data.map(data => {
+                    return (
+                        <button key={data.id}
                             onClick={(e) => handleClick(data.id)}
-                            class="block w-full cursor-pointer hover:bg-secondary hover:opacity-90 rounded-lg bg-primary-100 p-4 text-primary-600">
-                            { data.name }
+                            className="block w-full cursor-pointer hover:bg-secondary hover:opacity-90 rounded-lg bg-primary-100 p-4 text-primary-600">
+                            {data.name}
                             <br />
-                            <div>Spent: ${ data.my_expenses }</div>
+                            <div>Spent: ${data.my_expenses}</div>
                         </button>
                     )
                 })}

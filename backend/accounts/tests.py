@@ -18,17 +18,17 @@ class testView(TestCase):
         User.objects.create_user(username="testing", password="testing123")
         c = Client()
         response = c.post('/accounts/register', {'username': 'testing', 'password': 'helloworld123', 're_password': 'helloworld123'}, format='json')
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 409)
 
     def test_password_mismatch(self):
         c = Client()
         response = c.post('/accounts/register', {'username': 'test', 'password': 'testing123', 're_password': 'test'}, format='json')
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 400)
     
     def test_password_too_short(self):
         c = Client()
         response = c.post('/accounts/register', {'username': 'test', 'password': 'test', 're_password': 'test'}, format='json')
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 400)
     
     def test_check_authentication(self):
         user = User.objects.create_user(username="testuser")

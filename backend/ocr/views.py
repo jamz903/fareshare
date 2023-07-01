@@ -49,6 +49,8 @@ class OCRView(APIView):
     def get(self, request, *args, **kwargs):
         user = self.request.user
         receipt = Receipt.objects.filter(created_by=user)
+        if user.is_anonymous:
+            return Response({"error": "User is not logged in"})
         serializer = ReceiptSerializer(receipt, many=True)
         return Response(serializer.data)
     

@@ -4,6 +4,7 @@ import TextareaAutoSize from "react-textarea-autosize";
 import { useState, useRef, useEffect } from "react";
 import { PAYMENTMETHOD } from "./ReceiptJsonParser";
 import Button from "../../components/Button";
+import { LightSpinner } from "../../components/Spinner";
 import updateReceiptObject from "./UpdateReceiptObject";
 // router
 import { useNavigate } from "react-router-dom";
@@ -473,7 +474,9 @@ export default function ReceiptData() {
     };
 
     //save receipt data to database
+    const [saving, setSaving] = useState(false);
     const saveData = (e) => {
+        setSaving(true);
         const new_receipt_data = {
             items: items,
             other: {
@@ -494,7 +497,10 @@ export default function ReceiptData() {
             .then(() => {
                 navigate("/receipts");
             })
-            .catch(err => console.error(err));
+            .catch(err => console.error(err))
+            .finally(() => {
+                setSaving(false);
+            });
     };
 
     return (
@@ -805,7 +811,11 @@ export default function ReceiptData() {
                     </tbody>
                 </table>
 
-                <Button className="" onClick={saveData}>Save</Button>
+                <Button className="" onClick={saveData}>{
+                    saving ?
+                        <LightSpinner />
+                        : "Save"
+                }</Button>
             </div>
 
         </NavBarLayout>

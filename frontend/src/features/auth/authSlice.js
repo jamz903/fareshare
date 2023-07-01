@@ -26,19 +26,18 @@ export const registerUser = createAsyncThunk(
                 { username, password, re_password },
                 config);
             if (response.data.success) {
-                // after registering, login user
-                dispatch(loginUser({ username, password }));
                 return response.data;
             } else {
-                console.log(response.data);
-                throw new Error(response.data.error);
+                throw new Error(response.data.message);
             }
         } catch (error) {
-            // return custom error message from backend if present
-            if (error.response && error.response.data.message) {
-                return rejectWithValue(error.response.data.message)
+            if (error.response) {
+                return rejectWithValue({
+                    status: error.response.status,
+                    message: error.response.data.error
+                });
             } else {
-                return rejectWithValue(error.message)
+                return rejectWithValue(error);
             }
         }
     });
@@ -63,14 +62,16 @@ export const loginUser = createAsyncThunk(
             if (response.data.success) {
                 return response.data
             } else {
-                throw response.error
+                throw new Error(response.data.message);
             }
         } catch (error) {
-            // return custom error message from backend if present
-            if (error.response && error.response.data.message) {
-                return rejectWithValue(error.response.data.message)
+            if (error.response) {
+                return rejectWithValue({
+                    status: error.response.status,
+                    message: error.response.data.error
+                });
             } else {
-                return rejectWithValue(error.message)
+                return rejectWithValue(error);
             }
         }
     });
@@ -95,18 +96,47 @@ export const logoutUser = createAsyncThunk(
             if (response.data.success) {
                 return response.data
             } else {
-                throw response.error
+                throw new Error(response.data.message);
             }
         } catch (error) {
-            // return custom error message from backend if present
-            if (error.response && error.response.data.message) {
-                return rejectWithValue(error.response.data.message)
+            if (error.response) {
+                return rejectWithValue({
+                    status: error.response.status,
+                    message: error.response.data.error
+                });
             } else {
-                return rejectWithValue(error.message)
+                return rejectWithValue(error);
             }
         }
     });
 
+export const checkAuthenticated = createAsyncThunk(
+    'auth/checkAuthenticated',
+    async ({ rejectWithValue, dispatch }) => {
+        // set axios config headers
+        const config = {
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'X-CSRFToken': Cookies.get('csrftoken'),
+            }
+        }
+        try {
+            const response = await axios.get(
+                `/accounts/authenticated`,
+                config);
+            return response.data;
+        } catch (error) {
+            if (error.response) {
+                return rejectWithValue({
+                    status: error.response.status,
+                    message: error.response.data.error
+                });
+            } else {
+                return rejectWithValue(error);
+            }
+        }
+    });
 
 export const authSlice = createSlice({
     name: 'auth',
@@ -153,6 +183,18 @@ export const authSlice = createSlice({
         builder.addCase(logoutUser.rejected, (state, { payload }) => {
             state.loading = false;
             console.log('User logout failed.')
+        });
+        builder.addCase(checkAuthenticated.pending, (state, { payload }) => {
+            state.loading = true;
+        });
+        builder.addCase(checkAuthenticated.fulfilled, (state, { payload }) => {
+            state.loading = false;
+            state.isAuthenticated = payload.is_authenticated;
+            state.username = payload.username ? payload.username : '';
+        });
+        builder.addCase(checkAuthenticated.rejected, (state, { payload }) => {
+            state.loading = false;
+            console.log('User authentication check failed.')
         });
     },
 });

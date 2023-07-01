@@ -2,8 +2,10 @@ import Header from "../Header";
 import { useSelector, useDispatch } from "react-redux";
 import { setDrawerOpen } from "./drawerSlice";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { logoutUser } from "../../features/auth/authSlice";
 import SideDrawerButton from "./SideDrawerButton";
+import { DarkSpinner } from "../Spinner";
 
 export default function SideDrawer() {
     const open = useSelector(state => state.drawer.drawerOpen);
@@ -14,11 +16,14 @@ export default function SideDrawer() {
         dispatch(setDrawerOpen(false));
     }
 
+    const [loadingLogout, setLoadingLogout] = useState(false);
     const handleLogout = () => {
-        closeDrawer();
+        setLoadingLogout(true);
         dispatch(logoutUser({}))
             .unwrap()
             .then((result) => {
+                setLoadingLogout(false);
+                closeDrawer();
                 navigate('/login');
             })
             .catch((error) => {
@@ -51,7 +56,9 @@ export default function SideDrawer() {
                     {/* <SideDrawerButton onClick={() => { navigate('/profile'); closeDrawer(); }}>Profile</SideDrawerButton> */}
                     <SideDrawerButton onClick={() => { navigate('/friends'); closeDrawer(); }}>Friends</SideDrawerButton>
                     {/* <SideDrawerButton onClick={() => { navigate('/settings'); closeDrawer(); }}>Settings</SideDrawerButton> */}
-                    <SideDrawerButton onClick={() => { handleLogout(); }}>Logout</SideDrawerButton>
+                    <SideDrawerButton onClick={() => { handleLogout(); }}>{
+                        loadingLogout ? <DarkSpinner /> : "Logout"
+                    }</SideDrawerButton>
                 </div>
             </div>
             <div className={divBg + hiddenClass} onClick={closeDrawer} data-testid="id">
