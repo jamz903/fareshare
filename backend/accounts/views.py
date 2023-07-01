@@ -16,7 +16,7 @@ class CheckAuthenticatedView(APIView):
             user  = self.request.user
             is_authenticated = user.is_authenticated
             if is_authenticated:
-                return Response({'is_authenticated': True})
+                return Response({'is_authenticated': True, 'username': user.username})
             else:
                 return Response({'is_authenticated': False})
         except:
@@ -36,21 +36,21 @@ class SignupView(APIView):
             re_password = data['re_password']
 
             # check if passwords match
-            if password == re_password:
-                if User.objects.filter(username=username).exists():
-                    return Response({'error': 'Username already exists'}, status=status.HTTP_404_NOT_FOUND)
-                else:
-                    if len(password) < 6:
-                        return Response({'error': 'Password must be at least 6 characters'}, status=status.HTTP_404_NOT_FOUND)
-                    else:
-                        # create user
-                        User.objects.create_user(username=username, password=password)
-                        # create user profile
-                        newProfile = Profile(user=User.objects.get(username=username))
-                        newProfile.save()
-                        return Response({'success': 'User created successfully'})
+            if password != re_password:
+                return Response({'error': 'Passwords do not match'}, status=status.HTTP_400_BAD_REQUEST)
+            # check if password > 6 characters
+            elif len(password) < 6:
+                return Response({'error': 'Password must be at least 6 characters'}, status=status.HTTP_400_BAD_REQUEST)
+            # check if username already exists
+            elif User.objects.filter(username=username).exists():
+                return Response({'error': 'Username already exists'}, status=status.HTTP_409_CONFLICT)
+            # create user
             else:
-                return Response({'error': 'Passwords do not match'}, status=status.HTTP_404_NOT_FOUND)
+                User.objects.create_user(username=username, password=password)
+                # create user profile in database
+                newProfile = Profile(user=User.objects.get(username=username))
+                newProfile.save()
+                return Response({'success': 'User created successfully'}, status=status.HTTP_200_OK)
         except:
             return Response({'error': 'Something went wrong when registering account'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -68,11 +68,11 @@ class LoginView(APIView):
             user = auth.authenticate(username=username, password=password)
 
             # check if user exists
-            if user is not None:
+            if user is None:
+                return Response({'error': 'The username and/or password are invalid.'}, status=status.HTTP_404_NOT_FOUND)
+            else:
                 auth.login(request, user)
                 return Response({'success': 'User authenticated', 'username': username})
-            else:
-                return Response({'error': 'Error authenticating'}, status=status.HTTP_404_NOT_FOUND)
         except:
             return Response({'error': 'Something went wrong when logging in'}, status=status.HTTP_404_NOT_FOUND)
         

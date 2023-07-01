@@ -10,6 +10,7 @@ import uploadFileToServer from "./UploadFileToServer";
 // router
 import { useNavigate } from "react-router-dom";
 import NavBarLayout from "../../layouts/NavBarLayout";
+import { LightSpinner } from "../../components/Spinner";
 
 export default function Upload() {
   const navigate = useNavigate();
@@ -26,6 +27,8 @@ export default function Upload() {
   const [imageUrl, setImageUrl] = useState({
     imageUrl: ''
   })
+
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     console.log("value: " + e.target.value);
@@ -54,13 +57,17 @@ export default function Upload() {
   const handleSubmit = (e) => {
     // Prevent the browser from reloading the page
     e.preventDefault();
+    setLoading(true);
     uploadFileToServer(name.name, image.image)
       .then(res => {
         const receiptData = receiptJsonParser(res.data.data);
         // navigate to receipt_data page
         navigate("/receipt_data", { state: { id: res.data.id, receiptData: receiptData } });
       })
-      .catch(err => console.error(err));
+      .catch(err => console.error(err))
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   return (
@@ -95,7 +102,11 @@ export default function Upload() {
           <input type="text" id='name' className="border-primary border-2 rounded-xl py-2 px-4 w-full" placeholder="Give your image a name" onChange={(e) => { handleChange(e); }} />
         </label>
         <Button type="submit">
-          Submit
+          {
+            loading ?
+              <LightSpinner />
+              : "Upload"
+          }
         </Button>
       </form>
     </NavBarLayout>

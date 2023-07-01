@@ -26,7 +26,10 @@ module.exports = {
   safelist: [ // safelist ensures that styles are loaded properly
     {
       pattern: /(bg|text|border)-(transparent|currentColor|black|seasalt|primary|secondary|yellow|red|green)/
-    }
+    },
+    {
+      pattern: /border-(t|r|b|l|x|y)-(transparent|currentColor|black|seasalt|primary|secondary|yellow|red|green)/
+    },
   ]
 }
 
