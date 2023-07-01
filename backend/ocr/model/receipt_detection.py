@@ -3,7 +3,7 @@
 #imports
 from PIL import Image
 import pytesseract
-pytesseract.pytesseract.tesseract_cmd = r'/opt/homebrew/Cellar/tesseract/5.3.1/bin/tesseract'
+#pytesseract.pytesseract.tesseract_cmd = r'/opt/homebrew/Cellar/tesseract/5.3.1/bin/tesseract'
 import argparse
 import cv2
 import numpy as np
