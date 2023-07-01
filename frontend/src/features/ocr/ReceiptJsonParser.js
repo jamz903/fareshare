@@ -37,7 +37,7 @@ function receiptJsonParser(receipt) {
     };
     const priceRegex = RegExp(/\d+[.,]\d\d/);
     const numberRegex = RegExp(/\d+/); // checks for any number
-    const qtyRegex = RegExp(/(?<!\S)\d+(?!\S)/); // checks for a number that is not surrounded by any non-whitespace character
+    const qtyRegex = RegExp(/(\s\d+\s)|(\s\d+$)|(^\d\s)|(^\d$)/); // checks for a number that is not surrounded by any non-whitespace character
 
     /**
      *  Constants
@@ -273,7 +273,7 @@ function receiptJsonParser(receipt) {
             // find the first qty number in the whole string
             const qtyArr = line.match(qtyRegex);
             if (qtyArr != null) {
-                const word = qtyArr[0];
+                const word = qtyArr[0].trim();
                 qty = parseInt(word);
                 line = line.replace(word, '');
             }
@@ -281,7 +281,7 @@ function receiptJsonParser(receipt) {
             // find the last qty number in the whole string
             const qtyArr = line.match(qtyRegex);
             if (qtyArr != null) {
-                const word = qtyArr[qtyArr.length - 1];
+                const word = qtyArr[qtyArr.length - 1].trim();
                 qty = parseInt(word);
                 line = line.replace(word, '');
             }

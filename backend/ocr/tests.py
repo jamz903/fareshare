@@ -14,6 +14,8 @@ class ReceiptTestCase(TestCase):
     
     def test_receipt_get(self):
         c = Client()
+        c.post('/accounts/register', {'username': 'test', 'password': 'testing123', 're_password': 'testing123'}, format='json')
+        c.login(username='test', password='testing123')
         response = c.get('/ocr/upload/', format='json')
         self.assertEqual(response.status_code, 200)
     
