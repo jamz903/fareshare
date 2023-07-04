@@ -44,7 +44,7 @@ export default function Login() {
   }
 
   // error handling
-  const [SUCCESS, ERROR, DEFAULT] = ['SUCCESS', 'ERROR', 'DEFAULT'];
+  const [ERROR, DEFAULT] = ['ERROR', 'DEFAULT']; // add SUCCESS if needed.
   const [usernameStatus, setUsernameStatus] = useState('DEFAULT');
   const [passwordStatus, setPasswordStatus] = useState('DEFAULT');
   const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
@@ -83,7 +83,7 @@ export default function Login() {
           />
         </div>
         <div className="flex flex-col gap-3">
-          <Button type="submit">
+          <Button type="submit" disabled={loading}>
             {loading ? <LightSpinner /> : 'Login'}
           </Button>
           <div className="text-center">

@@ -56,7 +56,7 @@ export default function SideDrawer() {
                     {/* <SideDrawerButton onClick={() => { navigate('/profile'); closeDrawer(); }}>Profile</SideDrawerButton> */}
                     <SideDrawerButton onClick={() => { navigate('/friends'); closeDrawer(); }}>Friends</SideDrawerButton>
                     {/* <SideDrawerButton onClick={() => { navigate('/settings'); closeDrawer(); }}>Settings</SideDrawerButton> */}
-                    <SideDrawerButton onClick={() => { handleLogout(); }}>{
+                    <SideDrawerButton onClick={() => { handleLogout(); }} disabled={loadingLogout}>{
                         loadingLogout ? <DarkSpinner /> : "Logout"
                     }</SideDrawerButton>
                 </div>

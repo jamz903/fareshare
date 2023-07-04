@@ -1,5 +1,4 @@
 import { useSelector } from 'react-redux';
-import RequireAuth from '../../components/RequireAuth';
 import NavBarLayout from '../../layouts/NavBarLayout';
 import { useEffect, useState } from 'react';
 import { DarkSpinner } from '../../components/Spinner';
@@ -12,6 +11,7 @@ function Home() {
     const username = useSelector(state => state.auth.username);
     const [expense, setExpense] = useState(0);
     const [loadingExpenses, setLoadingExpenses] = useState(true);
+    const [expensesErrorMessage, setExpensesErrorMessage] = useState("");
 
     const getExpenses = async () => {
         // set axios config headers
@@ -23,14 +23,20 @@ function Home() {
             }
         }
         // get receipts
-        const response = await axios.get('/ocr/upload/', config)
+        const promises = [];
+        const response = axios.get('/ocr/upload/', config)
             .then(res => {
                 setLoadingExpenses(false);
                 return res.data
             }).catch(err => {
-                console.error(err)
+                setLoadingExpenses(false);
+                setExpensesErrorMessage(err.response.data.message)
+                return [];
             })
-        setExpense(calculateExpenses(response));
+        promises.push(response);
+        const result = await Promise.all(promises);
+        const expenses = calculateExpenses(result[0]);
+        setExpense(expenses);
     }
 
     const calculateExpenses = (receiptsArray) => {
@@ -60,15 +66,19 @@ function Home() {
                 }
                 {
                     !loadingExpenses ?
-                        <div className='h-40 w-40 flex flex-col place-content-center gap-2 rounded-full border-2 border-green'>
-                            <div className='text-sm text-center font-light'>
-                                You have spent:
-                            </div>
-                            <div className='text-3xl text-center'>
-                                ${expense}
-                            </div>
-                        </div> :
-                        <DarkSpinner />
+                        expensesErrorMessage ?
+                            <div>{expensesErrorMessage}</div> :
+                            (
+                                <div className='h-40 w-40 flex flex-col place-content-center gap-2 rounded-full border-2 border-green'>
+                                    <div className='text-sm text-center font-light'>
+                                        You have spent:
+                                    </div>
+                                    <div className='text-3xl text-center'>
+                                        ${expense}
+                                    </div>
+                                </div>
+                            ) :
+                        < DarkSpinner />
                 }
             </div>
         </NavBarLayout>

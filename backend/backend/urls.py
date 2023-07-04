@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path, include, re_path
 from django.views.generic import TemplateView
 from rest_framework import routers
-from ocr import views
+from . import views
 
 router = routers.DefaultRouter()
 #router.register(r'users', views.RegisterView, 'ocr')
@@ -31,6 +31,7 @@ urlpatterns = [
     path('ocr/', include('ocr.urls')),
     path('friends/', include('friends.urls')),
     path('profile/', include('profile.urls')),
+    path('test/', views.EndpointTestView.as_view()),
 ]
 
 # catch all url path for react router

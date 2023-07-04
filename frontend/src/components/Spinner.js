@@ -1,6 +1,5 @@
-export default function Spinner({ length = 6, spinnerColor = 'black', bgColor = 'white' }) {
+export default function Spinner({ length = 6, spinnerColor = 'black', bgColor = 'white', className = '' }) {
     const str = [
-        'inline-block',
         `w-${length}`,
         `h-${length}`,
         'border-2',
@@ -9,17 +8,18 @@ export default function Spinner({ length = 6, spinnerColor = 'black', bgColor = 
         `border-t-${bgColor}`,
         `border-r-${bgColor}`,
         `border-b-${spinnerColor}`,
-        'animate-spin'
+        'animate-spin',
+        className
     ].join(' ');
     return (
-        <span className={str}></span>
+        <div className={str}></div>
     )
 }
 
-export function LightSpinner() {
-    return <Spinner spinnerColor="seasalt" bgColor="secondary" />
+export function LightSpinner({ length = 6, className = '' }) {
+    return <Spinner spinnerColor="seasalt" bgColor="secondary" length={length} className={className} />
 }
 
-export function DarkSpinner() {
-    return <Spinner spinnerColor="secondary" bgColor="seasalt" />
+export function DarkSpinner({ length = 6, className = '' }) {
+    return <Spinner spinnerColor="secondary" bgColor="seasalt" length={length} className={className} />
 }
