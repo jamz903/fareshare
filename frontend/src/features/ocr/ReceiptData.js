@@ -3,7 +3,7 @@ import { ShoppingCartIcon, CurrencyDollarIcon, HashtagIcon, UserIcon, XMarkIcon,
 import TextareaAutoSize from "react-textarea-autosize";
 import { useState, useRef, useEffect } from "react";
 import { PAYMENTMETHOD } from "./ReceiptJsonParser";
-import Button from "../../components/Button";
+import Button from "../../components/Buttons/Button";
 import { LightSpinner } from "../../components/Spinner";
 import updateReceiptObject from "./UpdateReceiptObject";
 // router

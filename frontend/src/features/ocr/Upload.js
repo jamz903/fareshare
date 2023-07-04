@@ -3,7 +3,7 @@
  */
 // import authentication actions
 import React, { useState } from "react";
-import Button from "../../components/Button";
+import Button from "../../components/Buttons/Button";
 import CSRFToken from "../../components/CSRFToken";
 import receiptJsonParser from "./ReceiptJsonParser";
 import uploadFileToServer from "./UploadFileToServer";
@@ -31,9 +31,11 @@ export default function Upload() {
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
-    console.log("value: " + e.target.value);
+    if (nameError) {
+      setNameError(false);
+    }
     setName({
-      name: e.target.value
+      name: e.target.value.trim()
     })
   }
 
@@ -47,17 +49,29 @@ export default function Upload() {
         imageUrl: ''
       })
     } else {
+      if (imageError) {
+        setImageError(false);
+      }
       setImageUrl({
         imageUrl: URL.createObjectURL(e.target.files[0]).toString()
       })
     }
-
   }
 
   const handleSubmit = (e) => {
     // Prevent the browser from reloading the page
     e.preventDefault();
     setLoading(true);
+    if (!image.image) {
+      setImageError(true);
+      setLoading(false);
+      return;
+    }
+    if (!name.name) {
+      setNameError(true);
+      setLoading(false);
+      return;
+    }
     uploadFileToServer(name.name, image.image)
       .then(res => {
         const receiptData = receiptJsonParser(res.data.data);
@@ -70,6 +84,20 @@ export default function Upload() {
       });
   };
 
+  // error handling
+  const [nameError, setNameError] = useState(false);
+  const [imageError, setImageError] = useState(false);
+  let nameBorderColor = 'primary';
+  let chooseFileBorderColor = 'primary';
+  let chooseFileTextColor = 'primary';
+  if (imageError) {
+    chooseFileBorderColor = 'red';
+    chooseFileTextColor = 'red';
+  }
+  if (nameError) {
+    nameBorderColor = 'red';
+  }
+
   return (
     <NavBarLayout navBarText="Upload">
       <form
@@ -80,26 +108,40 @@ export default function Upload() {
         }}
         className="h-full w-full flex flex-col items-center gap-5 px-5 pb-5">
         <CSRFToken />
-        <label className="grow w-full flex flex-col justify-center border-primary border-2 rounded-xl py-2 px-4 gap-2">
+        <div className="w-full grow flex flex-col gap-1">
+          <label className={`w-full grow flex flex-col justify-center border-${chooseFileBorderColor} border-2 rounded-xl py-2 px-4 gap-2`}>
+            {
+              imageUrl.imageUrl !== '' ?
+                <img src={imageUrl.imageUrl} className="flex-none max-w-full mx-auto" alt='' />
+                : null
+            }
+            <div className={`text-center text-${chooseFileTextColor}`}>
+              {imageUrl.imageUrl !== '' ? "Change Image..." : "Choose File..."}
+            </div>
+            <input
+              type="file"
+              name="image_url"
+              accept="image/jpeg"
+              className="hidden"
+              onChange={(e) => {
+                handleImageChange(e);
+              }} />
+          </label>
           {
-            imageUrl.imageUrl !== '' ?
-              <img src={imageUrl.imageUrl} className="flex-none max-w-full mx-auto" alt='' />
-              : null
+            imageError ?
+              <div className="text-sm text-red mt--5">
+                Please upload an image.
+              </div> : null
           }
-          <div className="text-center text-primary">
-            {imageUrl.imageUrl !== '' ? "Change Image..." : "Choose File..."}
-          </div>
-          <input
-            type="file"
-            name="image_url"
-            accept="image/jpeg"
-            className="hidden"
-            onChange={(e) => {
-              handleImageChange(e);
-            }} />
-        </label>
-        <label className="w-full flex flex-col items-center gap-1">
-          <input type="text" id='name' className="border-primary border-2 rounded-xl py-2 px-4 w-full" placeholder="Give your image a name" onChange={(e) => { handleChange(e); }} />
+        </div>
+        <label className="w-full flex flex-col gap-1">
+          <input type="text" id='name' className={`border-${nameBorderColor} border-2 rounded-xl py-2 px-4 w-full`} placeholder="Give your image a name" onChange={(e) => { handleChange(e); }} />
+          {
+            nameError ?
+              <div className={`text-sm text-red`}>
+                Please enter a name for your image.
+              </div> : null
+          }
         </label>
         <Button type="submit">
           {

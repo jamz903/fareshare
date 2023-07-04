@@ -37,7 +37,6 @@ function receiptJsonParser(receipt) {
     };
     const priceRegex = RegExp(/\d+[.,]\d\d/);
     const numberRegex = RegExp(/\d+/); // checks for any number
-    const qtyRegex = RegExp(/(\s\d+\s)|(\s\d+$)|(^\d\s)|(^\d$)/); // checks for a number that is not surrounded by any non-whitespace character
 
     /**
      *  Constants
@@ -122,10 +121,6 @@ function receiptJsonParser(receipt) {
         return blacklistedRegex.some((regex) => {
             return regex.test(line.toLowerCase());
         });
-    }
-
-    const hasNumber = (str) => {
-        return numberRegex.test(str);
     }
 
     function cleanCurrrencySymbol(line) {
@@ -260,37 +255,47 @@ function receiptJsonParser(receipt) {
         let price = 0.0;
         let name = '';
         let qty = 0;
-        const priceArr = line.match(priceRegex);
-        if (priceArr != null) {
-            price = parseFloat(priceArr[0]);
-            line = line.replace(priceArr[0], '');
-        }
-        line = line.trim();
-        // quantity can be either in the front or back
-        const frontSubstring = line.substring(0, QTY_DETECTION_THRESHOLD);
-        const backSubstring = line.substring(line.length - QTY_DETECTION_THRESHOLD);
-        if (hasNumber(frontSubstring)) {
-            // find the first qty number in the whole string
-            const qtyArr = line.match(qtyRegex);
-            if (qtyArr != null) {
-                const word = qtyArr[0].trim();
-                qty = parseInt(word);
-                line = line.replace(word, '');
-            }
-        } else if (hasNumber(backSubstring)) {
-            // find the last qty number in the whole string
-            const qtyArr = line.match(qtyRegex);
-            if (qtyArr != null) {
-                const word = qtyArr[qtyArr.length - 1].trim();
-                qty = parseInt(word);
-                line = line.replace(word, '');
+        let elements = line.split(/\s+/)
+            .filter((word) => !!word); // make sure no undefined, null, or empty string
+        // extract price
+        for (let i = 0; i < elements.length; i++) {
+            let element = elements[i];
+            if (priceRegex.test(element)) {
+                element = element.replaceAll(/[^\d.,]/g, ''); // clean non digits and non decimal points
+                price = parseFloat(element);
+                elements.splice(i, 1);
+                break;
             }
         }
 
-        // process name
-        // clean currency symbols first
-        line = cleanCurrrencySymbol(line);
-        name = line.trim();
+        // extract quantity, if any
+        // quantity should be a number but not contain any non-digit characters
+        let frontPointer = 0;
+        let backPointer = elements.length - 1;
+        let useFrontPointer = true;
+        while (frontPointer <= backPointer) {
+            let element = useFrontPointer ? elements[frontPointer] : elements[backPointer];
+            // test for strings that:
+            // 1. don't contain any non-digit characters, or
+            // 2. end with an 'x'
+            if (numberRegex.test(element) && (!/\D/.test(element) || /\d+[xX]$/.test(element))) {
+                qty = parseInt(element);
+                elements.splice(useFrontPointer ? frontPointer : backPointer, 1);
+                break;
+            }
+            if (useFrontPointer) {
+                frontPointer++;
+            } else {
+                backPointer--;
+            }
+            useFrontPointer = !useFrontPointer;
+        }
+
+        // extract name
+        name = elements
+            .filter((word) => cleanCurrrencySymbol(word))
+            .join(' ');
+
         // check name for minimum required length
         if (!hasValidName(name)) {
             const prevKey = parseInt(key) - 1;

@@ -1,5 +1,5 @@
 import Header from "../../components/Header";
-import Button from "../../components/Button";
+import Button from "../../components/Buttons/Button";
 import Link from "../../components/Link";
 import { useNavigate } from "react-router-dom";
 import RiceBowl from "../../components/RiceBowl";

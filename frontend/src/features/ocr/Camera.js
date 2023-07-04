@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import Button from '../../components/Button';
+import Button from '../../components/Buttons/Button';
 import NavBarLayout from '../../layouts/NavBarLayout';
 import Measure from 'react-measure'
 import { CameraIcon } from '@heroicons/react/24/outline'

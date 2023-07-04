@@ -8,7 +8,7 @@ import { registerUser, loginUser } from "./authSlice";
 import CSRFToken from "../../components/CSRFToken";
 import RedirectToHome from "../../components/RedirectToHome";
 import Header from "../../components/Header";
-import Button from "../../components/Button";
+import Button from "../../components/Buttons/Button";
 import Link from "../../components/Link";
 import { useState } from "react";
 import FormInput from "./FormInput";

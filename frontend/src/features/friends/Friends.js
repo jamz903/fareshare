@@ -1,13 +1,14 @@
 import NavBarLayout from "../../layouts/NavBarLayout";
-import SmallButton from "../../components/SmallButton";
+import SmallButton from "../../components/Buttons/SmallButton";
 import { XMarkIcon, CheckIcon, PlusIcon } from "@heroicons/react/24/outline";
 import { useState, useRef, useEffect } from "react";
 import CSRFToken from "../../components/CSRFToken";
 import axios from "axios";
 import Cookies from "js-cookie";
+import Spinner, { LightSpinner } from "../../components/Spinner";
 
 // child components
-function FriendRow({ username, src = '', onRemove = () => { } }) {
+function FriendRow({ username, src = '', onRemove = () => { }, removing = false }) {
     return (
         <div className="w-full flex flex-row place-content-between items-center">
             <div className="flex flex-row gap-4 items-center">
@@ -17,13 +18,17 @@ function FriendRow({ username, src = '', onRemove = () => { } }) {
                 </div>
             </div>
             <div>
-                <SmallButton className="px-4" onClick={onRemove}>Remove</SmallButton>
+                <SmallButton className="px-4" onClick={onRemove}>{
+                    removing ?
+                        <LightSpinner className="h-5 w-5" />
+                        : "Remove"
+                }</SmallButton>
             </div>
         </div>
     )
 }
 
-function FriendRequestRow({ username, src = '', onAccept = () => { }, onDecline = () => { } }) {
+function FriendRequestRow({ username, src = '', onAccept = () => { }, onDecline = () => { }, accepting = false, declining = false }) {
     return (
         <div className="w-full flex flex-row place-content-between items-center">
             <div className="flex flex-row gap-4 items-center">
@@ -34,10 +39,18 @@ function FriendRequestRow({ username, src = '', onAccept = () => { }, onDecline 
             </div>
             <div className="flex flex-row gap-3">
                 <SmallButton bgColor={'primary'} onClick={onAccept}>
-                    <CheckIcon className="h-5 w-5" />
+                    {
+                        accepting ?
+                            <Spinner bgColor="primary" spinnerColor="seasalt" className="h-5 w-5" />
+                            : <CheckIcon className="h-5 w-5" />
+                    }
                 </SmallButton>
                 <SmallButton bgColor={'red'} onClick={onDecline}>
-                    <XMarkIcon className="h-5 w-5" />
+                    {
+                        declining ?
+                            <LightSpinner bgColor="primary" spinnerColor="seasalt" className="h-5 w-5" />
+                            : <XMarkIcon className="h-5 w-5" />
+                    }
                 </SmallButton>
             </div>
         </div>
@@ -79,7 +92,7 @@ export default function Friends() {
     useEffect(() => {
         getFriends();
         getRequests();
-    }, [])
+    }, [friends, requests])
     // helper functions
     const acceptFriend = async (username) => {
         const response = await axios.post('/friends/accept-request', { username }, config)
