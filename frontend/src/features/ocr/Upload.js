@@ -11,6 +11,8 @@ import uploadFileToServer from "./UploadFileToServer";
 import { useNavigate } from "react-router-dom";
 import NavBarLayout from "../../layouts/NavBarLayout";
 import { LightSpinner } from "../../components/Spinner";
+// debounce
+import { debounce } from "lodash";
 
 export default function Upload() {
   const navigate = useNavigate();
@@ -143,7 +145,7 @@ export default function Upload() {
               </div> : null
           }
         </label>
-        <Button type="submit">
+        <Button type="submit" disabled={loading}>
           {
             loading ?
               <LightSpinner />
