@@ -1,5 +1,7 @@
-export default function SideDrawerButton({ onClick = () => { }, children }) {
+export default function SideDrawerButton({ onClick = () => { }, children, disabled = false }) {
     return (
-        <button className="text-primary text-left w-full hover:text-secondary" onClick={onClick}>{children}</button>
+        <button className="text-primary text-left w-full hover:text-secondary" onClick={onClick} disabled={disabled}>
+            {children}
+        </button>
     );
 }

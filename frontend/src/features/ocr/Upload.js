@@ -11,8 +11,6 @@ import uploadFileToServer from "./UploadFileToServer";
 import { useNavigate } from "react-router-dom";
 import NavBarLayout from "../../layouts/NavBarLayout";
 import { LightSpinner } from "../../components/Spinner";
-// debounce
-import { debounce } from "lodash";
 
 export default function Upload() {
   const navigate = useNavigate();
@@ -89,11 +87,13 @@ export default function Upload() {
     setLoading(true);
     if (!image.image) {
       setImageError(true);
+      setImageErrorMessage('Please upload an image.');
       setLoading(false);
       return;
     }
     if (!name.name) {
       setNameError(true);
+      setNameErrorMessage('Please enter a name for your image.');
       setLoading(false);
       return;
     }
@@ -108,7 +108,18 @@ export default function Upload() {
         // navigate to receipt_data page
         navigate("/receipt_data", { state: { id: res.data.id, receiptData: receiptData } });
       })
-      .catch(err => console.error(err))
+      .catch(err => {
+        let message;
+        if (err.response && err.response.data && err.response.data.message) {
+          message = err.response.data.message;
+        } else {
+          message = err.message;
+        }
+        setNameError(true);
+        setImageError(true);
+        setImageErrorMessage('');
+        setNameErrorMessage(message);
+      })
       .finally(() => {
         setLoading(false);
       });
@@ -116,9 +127,10 @@ export default function Upload() {
 
   // error handling
   const [nameError, setNameError] = useState(false);
+  const [nameErrorMessage, setNameErrorMessage] = useState('Please enter a name for your image.');
   const [imageError, setImageError] = useState(false);
   const [receiptTypeError, setReceiptTypeError] = useState(false);
-
+  const [imageErrorMessage, setImageErrorMessage] = useState('Please upload an image.');
   let nameBorderColor = 'primary';
   let chooseFileBorderColor = 'primary';
   let chooseFileTextColor = 'primary';
@@ -167,7 +179,7 @@ export default function Upload() {
           {
             imageError ?
               <div className="text-sm text-red mt--5">
-                Please upload an image.
+                {imageErrorMessage}
               </div> : null
           }
         </div>
@@ -176,7 +188,7 @@ export default function Upload() {
           {
             nameError ?
               <div className={`text-sm text-red`}>
-                Please enter a name for your image.
+                {nameErrorMessage}
               </div> : null
           }
         </label>

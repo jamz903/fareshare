@@ -21,15 +21,14 @@ export const registerUser = createAsyncThunk(
         }
         try {
             // attempt to register user
-            const response = await axios.post(
+            return await axios.post(
                 `/accounts/register`,
                 { username, password, re_password },
-                config);
-            if (response.data.success) {
-                return response.data;
-            } else {
-                throw new Error(response.data.message);
-            }
+                config).then(response => {
+                    return response.data;
+                }).catch(error => {
+                    throw error;
+                })
         } catch (error) {
             if (error.response) {
                 return rejectWithValue({
@@ -55,15 +54,14 @@ export const loginUser = createAsyncThunk(
         }
         try {
             // attempt to login user
-            const response = await axios.post(
+            return await axios.post(
                 `/accounts/login`,
                 { username, password },
-                config);
-            if (response.data.success) {
-                return response.data
-            } else {
-                throw new Error(response.data.message);
-            }
+                config).then(response => {
+                    return response.data;
+                }).catch(error => {
+                    throw error;
+                })
         } catch (error) {
             if (error.response) {
                 return rejectWithValue({
@@ -122,10 +120,13 @@ export const checkAuthenticated = createAsyncThunk(
             }
         }
         try {
-            const response = await axios.get(
+            const promises = []
+            const response = axios.get(
                 `/accounts/authenticated`,
                 config);
-            return response.data;
+            promises.push(response);
+            const results = await Promise.all(promises);
+            return results[0].data;
         } catch (error) {
             if (error.response) {
                 return rejectWithValue({
@@ -152,7 +153,9 @@ export const authSlice = createSlice({
         });
         builder.addCase(registerUser.fulfilled, (state, { payload }) => {
             state.loading = false;
-            console.log('User registered successfully!')
+            state.isAuthenticated = true;
+            state.username = payload.username;
+            console.log('User registered and logged in successfully!')
         });
         builder.addCase(registerUser.rejected, (state, { payload, error }) => {
             state.loading = false;

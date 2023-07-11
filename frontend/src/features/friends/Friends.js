@@ -1,61 +1,12 @@
 import NavBarLayout from "../../layouts/NavBarLayout";
-import SmallButton from "../../components/Buttons/SmallButton";
-import { XMarkIcon, CheckIcon, PlusIcon } from "@heroicons/react/24/outline";
-import { useState, useRef, useEffect } from "react";
-import CSRFToken from "../../components/CSRFToken";
+
+import { useState, useEffect } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
-import Spinner, { LightSpinner } from "../../components/Spinner";
-
-// child components
-function FriendRow({ username, src = '', onRemove = () => { }, removing = false }) {
-    return (
-        <div className="w-full flex flex-row place-content-between items-center">
-            <div className="flex flex-row gap-4 items-center">
-                <img src={src} alt='' className="rounded-full h-10 w-10" />
-                <div className="font-semibold">
-                    {username}
-                </div>
-            </div>
-            <div>
-                <SmallButton className="px-4" onClick={onRemove}>{
-                    removing ?
-                        <LightSpinner className="h-5 w-5" />
-                        : "Remove"
-                }</SmallButton>
-            </div>
-        </div>
-    )
-}
-
-function FriendRequestRow({ username, src = '', onAccept = () => { }, onDecline = () => { }, accepting = false, declining = false }) {
-    return (
-        <div className="w-full flex flex-row place-content-between items-center">
-            <div className="flex flex-row gap-4 items-center">
-                <img src={src} alt='' className="rounded-full h-10 w-10" />
-                <div className="font-semibold">
-                    {username}
-                </div>
-            </div>
-            <div className="flex flex-row gap-3">
-                <SmallButton bgColor={'primary'} onClick={onAccept}>
-                    {
-                        accepting ?
-                            <Spinner bgColor="primary" spinnerColor="seasalt" className="h-5 w-5" />
-                            : <CheckIcon className="h-5 w-5" />
-                    }
-                </SmallButton>
-                <SmallButton bgColor={'red'} onClick={onDecline}>
-                    {
-                        declining ?
-                            <LightSpinner bgColor="primary" spinnerColor="seasalt" className="h-5 w-5" />
-                            : <XMarkIcon className="h-5 w-5" />
-                    }
-                </SmallButton>
-            </div>
-        </div>
-    )
-}
+import FriendRequestItem from "./FriendRequestItem";
+import FriendListItem from "./FriendListItem";
+import FriendSearchBar from "./FriendSearchBar";
+import { DarkSpinner } from "../../components/Spinner";
 
 export default function Friends() {
     // set axios config headers
@@ -69,130 +20,58 @@ export default function Friends() {
     // obtain friends and requests from server
     const [friends, setFriends] = useState([])
     const [requests, setRequests] = useState([])
-    const getFriends = async () => {
-        const response = await axios.get('/friends/get-friends', config);
-        if (response.error) {
-            console.err(response.error)
-        } else {
-            if (response.data.friends) {
-                setFriends(response.data.friends);
-            }
-        }
+    const [loadingFriends, setLoadingFriends] = useState(false);
+    const getFriends = () => {
+        // returns a promise
+        return axios.get('/friends/get-friends', config);
     }
-    const getRequests = async () => {
-        const response = await axios.get('/friends/get-requests', config);
-        if (response.error) {
-            console.err(response.error)
-        } else {
-            if (response.data.friend_requests) {
-                setRequests(response.data.friend_requests);
-            }
-        }
+    const getRequests = () => {
+        // returns a promise
+        return axios.get('/friends/get-requests', config);
     }
-    useEffect(() => {
-        getFriends();
-        getRequests();
-    }, [friends, requests])
-    // helper functions
-    const acceptFriend = async (username) => {
-        const response = await axios.post('/friends/accept-request', { username }, config)
-            .then(res => {
-                return res.data;
-            }).catch(err => {
-                console.err(err)
-            });
-        if (response.success) {
-            getFriends();
-            getRequests();
-        }
-    }
-    const declineFriend = async (username) => {
-        const response = await axios.post('/friends/reject-request', { username }, config)
-            .then(res => {
-                return res.data
-            }).catch(err => {
-                console.err(err)
-            });
-        if (response.success) {
-            getRequests();
-        }
-    }
-    const removeFriend = async (username) => {
-        if (window.confirm(`Are you sure you want to remove ${username} from your friend list?`)) {
-            const response = await axios.post('/friends/remove-friend', { username }, config)
-                .then(res => {
-                    return res.data
-                }).catch(err => {
-                    console.err(err)
-                });
-            if (response.success) {
-                getFriends();
-            }
-        }
-    }
-    const [searchUsername, setSearchUsername] = useState('')
-    const [friendRequestStatus, setFriendRequestStatus] = useState('' /* 'success' | 'error' */)
-    const borderColor = friendRequestStatus === 'success' ? 'border-green' : friendRequestStatus === 'error' ? 'border-red' : 'border-primary';
-    const [errorMessage, setErrorMessage] = useState('')
-    const searchUsernameRef = useRef(null)
 
-    const searchFriend = async (username) => {
-        if (username === '') return;
-        // reset search bar
-        searchUsernameRef.current.value = '';
-        setSearchUsername('');
-        // search for friend
-        const response = await axios.post('/friends/send-request', { username }, config)
-            .then(res => {
-                console.log(res.data);
-                return res.data;
+    useEffect(() => {
+        const updateFriends = () => {
+            setLoadingFriends(true);
+            const promises = [getFriends(), getRequests()];
+            Promise.all(promises).then(res => {
+                const friendsResponse = res[0];
+                const requestsResponse = res[1];
+                if (friendsResponse.data.friends) {
+                    setFriends(friendsResponse.data.friends);
+                }
+                if (requestsResponse.data.friend_requests) {
+                    setRequests(requestsResponse.data.friend_requests);
+                }
             }).catch(err => {
-                console.err(err)
+                console.error(err);
+            }).finally(() => {
+                setLoadingFriends(false);
             });
-        if (response.error) {
-            setErrorMessage(response.error)
-            setFriendRequestStatus('error')
-        } else if (response.success) {
-            setFriendRequestStatus('success')
         }
+        updateFriends();
+    }, [])
+
+    // helper functions for updating UI.
+    // NOTE: All the requests are made to the server already, and successfully fulfilled. This is just to update the UI.
+    // accept and decline friend requests
+    const uiAcceptRequest = (username) => {
+        const newFriend = requests.find(request => request.username === username);
+        setFriends([...friends, newFriend]);
+        setRequests(requests.filter(request => request.username !== username));
+    }
+    const uiDeclineRequest = (username) => {
+        setRequests(requests.filter(request => request.username !== username));
+    }
+    // remove friend
+    const uiRemoveFriend = (username) => {
+        setFriends(friends.filter(friend => friend.username !== username));
     }
 
     return (
         <NavBarLayout>
             <div className="flex flex-col gap-5 w-full px-5">
-                <div>
-                    <div className="font-light text-sm mb-1">
-                        Add Friend
-                    </div>
-                    <form className="flex flex-row place-content-between">
-                        <CSRFToken />
-                        <input
-                            ref={searchUsernameRef}
-                            placeholder="Enter a username"
-                            className={"border-2 rounded-lg px-2 grow mr-5 " + borderColor}
-                            defaultValue={searchUsername}
-                            onChange={(e) => {
-                                setSearchUsername(e.target.value)
-                            }} />
-                        <SmallButton type='submit' bgColor="primary" onClick={(e) => {
-                            e.preventDefault();
-                            searchFriend(searchUsername);
-                        }}>
-                            <PlusIcon className="h-5 w-5" />
-                        </SmallButton>
-                    </form>
-                    {
-                        friendRequestStatus === 'success' ? (
-                            <div className="text-sm text-green mt-1">
-                                Friend request sent!
-                            </div>
-                        ) : friendRequestStatus === 'error' ? (
-                            <div className="text-sm text-red mt-1">
-                                {errorMessage ? errorMessage : 'Error sending friend request!'}
-                            </div>
-                        ) : null
-                    }
-                </div>
+                <FriendSearchBar />
                 {
                     requests.length !== 0 ? (
                         <div>
@@ -201,12 +80,13 @@ export default function Friends() {
                             </div>
                             <div className="flex flex-col gap-3 w-full">
                                 {requests.map((request, index) => (
-                                    <FriendRequestRow
+                                    <FriendRequestItem
                                         key={index}
                                         username={request.username}
                                         src={request.profilePic}
-                                        onAccept={() => acceptFriend(request.username)}
-                                        onDecline={() => declineFriend(request.username)} />
+                                        onAccepted={(username) => uiAcceptRequest(username)}
+                                        onDeclined={(username) => uiDeclineRequest(username)}
+                                    />
                                 ))}
                             </div>
                         </div>
@@ -217,23 +97,29 @@ export default function Friends() {
                         Friends
                     </div>
                     {
-                        friends.length === 0 ? (
-                            <div className="text-slate-500 text-sm">
-                                You have no friends. Add some!
-                            </div>
-                        ) : (
-                            <div className="flex flex-col gap-3 w-full">
-                                {friends.map((friend, index) => (
-                                    <FriendRow
-                                        key={index}
-                                        username={friend.username}
-                                        src={friend.profilePic}
-                                        onRemove={() => removeFriend(friend.username)} />
-                                ))}
-                            </div>
-                        )
+                        loadingFriends ?
+                            <div className="flex flex-row items-center gap-2">
+                                <DarkSpinner />
+                                <div className="text-sm">
+                                    Loading friends...
+                                </div>
+                            </div> :
+                            friends.length === 0 ? (
+                                <div className="text-slate-500 text-sm">
+                                    You have no friends. Add some!
+                                </div>
+                            ) : (
+                                <div className="flex flex-col gap-3 w-full">
+                                    {friends.map((friend, index) => (
+                                        <FriendListItem
+                                            key={friend.username}
+                                            username={friend.username}
+                                            src={friend.profilePic}
+                                            onRemoved={(username) => uiRemoveFriend(username)} />
+                                    ))}
+                                </div>
+                            )
                     }
-
                 </div>
             </div>
         </NavBarLayout>

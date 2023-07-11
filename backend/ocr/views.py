@@ -9,16 +9,16 @@ import urllib.request
 import json
 import csv
 import os
-from .serializers import ReceiptSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework import status
 import pandas as pd
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from .forms import *
 from .models import *
+from .serializers import *
 from django.contrib.auth.models import User
 
 class OCRView(APIView):
@@ -48,10 +48,10 @@ class OCRView(APIView):
 
     def get(self, request, *args, **kwargs):
         user = self.request.user
-        receipt = Receipt.objects.filter(created_by=user)
         if user.is_anonymous:
             return Response({"error": "User is not logged in"})
-        serializer = ReceiptSerializer(receipt, many=True)
+        receipts = Receipt.objects.filter(created_by=user)
+        serializer = ReceiptSerializer(receipts, many=True)
         return Response(serializer.data)
     
     def post(self, request, *args, **kwargs):
@@ -91,13 +91,38 @@ class ReceiptDataView(APIView):
     def get(self, request, *args, **kwargs):
         data = request.data
         receipt = Receipt.objects.get(id=data['id'])
-        return JsonResponse({"processed_data": receipt.processed_data, "id": receipt.pk, "name": receipt.name})
+        # get items from receipt
+        receipt_items = ReceiptItem.objects.filter(receipt=receipt)
+        return JsonResponse({"receipt_items": receipt_items, "id": receipt.pk, "name": receipt.name})
     
     def post(self, request, *args, **kwargs):
         data = request.data
-        jsonData = json.dumps(data['processed_data'])
+        # jsonData = json.dumps(data['processed_data'])
         receipt = Receipt.objects.get(id=data['id'])
-        receipt.processed_data = jsonData
+        # receipt.processed_data = jsonData
         receipt.my_expenses = data['my_expenses']
         receipt.save()
+        # save receipt items
+        for receipt_item in data['receipt_items']:
+            receipt_item_serializer = ReceiptItemSerializer(data=receipt_item)
+            if receipt_item_serializer.is_valid():
+                receipt_item_serializer.save()
+            else:
+                print('error', receipt_item_serializer.errors)
         return Response(data)
+
+class ReceiptItemByReceiptView(APIView):
+    def get(self, request, *args, **kwargs):
+        data = request.data
+        receipt = Receipt.objects.get(id=data['id'])
+        receipt_items = ReceiptItem.objects.filter(receipt=receipt)
+        serializer = ReceiptItemSerializer(receipt_items, many=True)
+        return Response(status=status.HTTP_200_OK, data=serializer.data)
+
+class ReceiptItemByUserView(APIView):
+    def get(self, request, *args, **kwargs):
+        data = request.data
+        user = User.objects.get(id=data['username'])
+        receipt_items = ReceiptItem.objects.filter(assigned_users=user)
+        serializer = ReceiptItemSerializer(receipt_items, many=True)
+        return Response(status=status.HTTP_200_OK, data=serializer.data)

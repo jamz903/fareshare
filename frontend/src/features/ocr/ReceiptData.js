@@ -12,6 +12,8 @@ import { useLocation } from "react-router-dom";
 // axios
 import axios from "axios";
 import Cookies from "js-cookie";
+// debounce
+import { debounce } from "lodash";
 
 const TAX_RATE = 0.08;
 const SVC_RATE = 0.1;
@@ -28,28 +30,6 @@ const COLOR_SETS = [
 const obtainRandomColorSet = () => {
     return COLOR_SETS[Math.floor(Math.random() * COLOR_SETS.length)];
 }
-
-// dummy friend list
-const dummy_friend_list = [
-    {
-        name: "chihuahuasdad",
-    },
-    {
-        name: "notbingsu",
-    },
-    {
-        name: "darielwilbert",
-    },
-    {
-        name: "bigbraintoh",
-    },
-    {
-        name: "yukuleles",
-    },
-    {
-        name: "annxbelle"
-    },
-]
 
 function AssigneeBubble({ friend, onClick = () => { }, icon = null }) {
     const colorSet = friend ? friend.colorSet : '';
@@ -492,12 +472,19 @@ export default function ReceiptData() {
         }
         // calculate personal expenses
         const my_expenses = calculatePersonalExpenses(new_receipt_data);
-        e.preventDefault();
         updateReceiptObject(my_expenses, id, new_receipt_data)
             .then(() => {
                 navigate("/receipts");
             })
-            .catch(err => console.error(err))
+            .catch(err => {
+                let message;
+                if (err.response) {
+                    message = err.response.data.message;
+                } else {
+                    message = err.message;
+                }
+                alert(message);
+            })
             .finally(() => {
                 setSaving(false);
             });
@@ -810,10 +797,9 @@ export default function ReceiptData() {
                         </tr>
                     </tbody>
                 </table>
-
-                <Button className="" onClick={saveData}>{
+                <Button className="" onClick={debounce(saveData)} disabled={saving}>{
                     saving ?
-                        <LightSpinner />
+                        <LightSpinner length={5} />
                         : "Save"
                 }</Button>
             </div>

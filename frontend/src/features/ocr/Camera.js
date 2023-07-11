@@ -8,6 +8,8 @@ import receiptJsonParser from './ReceiptJsonParser';
 import uploadFileToServer from './UploadFileToServer';
 // router
 import { useNavigate } from 'react-router-dom';
+import { LightSpinner } from '../../components/Spinner';
+import { debounce } from 'lodash';
 
 export default function Camera() {
     const navigate = useNavigate();
@@ -15,6 +17,8 @@ export default function Camera() {
     const canvasRef = useRef();
     const [dimensions, setDimensions] = useState({ width: -1, height: -1 });
     const minLength = Math.min(dimensions.width, dimensions.height);
+    const [capturing, setCapturing] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const DISPLAY_TEXT = 'Please keep receipt in this frame.'
 
@@ -35,9 +39,11 @@ export default function Camera() {
         }
     }).catch((error) => {
         console.warn(error);
+        alert(error.message);
     });
 
     function handleCapture() {
+        setCapturing(true);
         const context = canvasRef.current.getContext("2d");
 
         canvasRef.current.width = minLength;
@@ -54,22 +60,34 @@ export default function Camera() {
         canvasRef.current.toBlob((blob) => {
             setBlob(blob);
         }, "image/png", 1);
+        setCapturing(false);
     }
 
     function handleUpload() {
+        setLoading(true);
         // upload blob to server and redirect user to receipt page
-        uploadFileToServer("receipt.jpg", blob)
-            .then(res => {
-                const receiptData = receiptJsonParser(res.data.data);
-                // navigate to receipt_data page
-                navigate("/receipt_data", { state: { receiptData: receiptData } });
-            })
-            .catch(err => console.error(err));
-
-        // after upload, clear canvas and blob
-        setBlob(null);
-        const context = canvasRef.current.getContext("2d");
-        context.clearRect(0, 0, minLength, minLength);
+        const debouncedUpload = debounce(() => {
+            uploadFileToServer("receipt.jpg", blob)
+                .then(res => {
+                    const receiptData = receiptJsonParser(res.data.data);
+                    // after upload, clear canvas and blob
+                    setBlob(null);
+                    const context = canvasRef.current.getContext("2d");
+                    context.clearRect(0, 0, minLength, minLength);
+                    // navigate to receipt_data page
+                    navigate("/receipt_data", { state: { receiptData: receiptData } });
+                })
+                .catch(err => {
+                    if (err.response && err.response.data && err.response.data.message) {
+                        alert(err.response.data.message);
+                    } else {
+                        alert(err.message);
+                    }
+                }).finally(() => {
+                    setLoading(false);
+                });
+        }, 1000)
+        debouncedUpload();
     }
 
     return (
@@ -105,10 +123,18 @@ export default function Camera() {
                 {
                     blob === null ?
                         <Button onClick={handleCapture}>
-                            <CameraIcon className='h-6 w-6 mx-auto' />
+                            {
+                                capturing ?
+                                    <LightSpinner /> :
+                                    <CameraIcon className='h-6 w-6 mx-auto' />
+                            }
                         </Button> :
-                        <Button onClick={handleUpload}>
-                            Upload
+                        <Button onClick={handleUpload} disabled={loading}>
+                            {
+                                loading ?
+                                    <LightSpinner /> :
+                                    'Upload'
+                            }
                         </Button>
                 }
             </div>

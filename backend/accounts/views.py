@@ -50,7 +50,10 @@ class SignupView(APIView):
                 # create user profile in database
                 newProfile = Profile(user=User.objects.get(username=username))
                 newProfile.save()
-                return Response({'success': 'User created successfully'}, status=status.HTTP_200_OK)
+                # login user
+                user = auth.authenticate(username=username, password=password)
+                auth.login(request, user)
+                return Response({'success': 'User registered and authenticated', 'username': username}, status=status.HTTP_200_OK)
         except:
             return Response({'error': 'Something went wrong when registering account'}, status=status.HTTP_404_NOT_FOUND)
 

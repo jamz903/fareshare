@@ -4,7 +4,7 @@
 
 // import authentication actions
 import { useDispatch } from "react-redux";
-import { registerUser, loginUser } from "./authSlice";
+import { registerUser } from "./authSlice";
 import CSRFToken from "../../components/CSRFToken";
 import RedirectToHome from "../../components/RedirectToHome";
 import Header from "../../components/Header";
@@ -41,14 +41,7 @@ export default function Register() {
     dispatch(registerUser(formJson))
       .unwrap()
       .then((result) => {
-        const loginFormJson = { username: formJson.username, password: formJson.password }
-        return dispatch(loginUser(loginFormJson))
-          .unwrap()
-          .then((result) => {
-            // should redirect
-          }).catch((error) => {
-            throw error;
-          });
+        // automatic redirect
       })
       .catch((error) => {
         if (error.status === 409) {
@@ -65,7 +58,7 @@ export default function Register() {
   }
 
   // error handling
-  const [SUCCESS, ERROR, NONE] = ['SUCCESS', 'ERROR', 'NONE'];
+  const [ERROR, NONE] = ['ERROR', 'NONE']; // add SUCCESS if needed.
   const [usernameStatus, setUsernameStatus] = useState(NONE);
   const [usernameErrorMessage, setUsernameErrorMessage] = useState('');
   const [passwordStatus, setPasswordStatus] = useState(NONE);
@@ -152,7 +145,7 @@ export default function Register() {
           />
         </div>
         <div className="flex flex-col gap-3">
-          <Button type="submit">
+          <Button type="submit" disabled={loading}>
             {loading ? <LightSpinner /> : 'Sign Up'}
           </Button>
           <div className="text-center">
