@@ -6,7 +6,7 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
-export default async function uploadFileToServer(name, image) {
+export default async function uploadFileToServer(name, image, receiptType) {
     let form_data = new FormData();
     //if name doesn't have an extension, add one
     if (!name.includes('.')) {
@@ -14,6 +14,7 @@ export default async function uploadFileToServer(name, image) {
     }
     form_data.append('image', image, name);
     form_data.append('name', name);
+    form_data.append('receipt_type', receiptType);
     let url = `/ocr/upload/`;
     return axios.post(url, form_data, {
         headers: {

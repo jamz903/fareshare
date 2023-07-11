@@ -64,7 +64,11 @@ class OCRView(APIView):
             except:
                 receipt = receipt_serializer.save()
             image = receipt_serializer.data['image']
-            os.system("python3 ocr/model/receipt_detection.py --image " + image[1:])
+            if (request.data['receipt_data'] == "physical"):
+                os.system("python3 ocr/model/receipt_detection.py --type physical --image " + image[1:])
+            else:
+                os.system("python3 ocr/model/receipt_detection.py --type online --image " + image[1:])
+            
             if exists("ocr/model/text.csv"):
                 #grab the uploaded csv and add index
                 df = pd.read_csv("ocr/model/text.csv")
