@@ -23,6 +23,10 @@ export default function Upload() {
     name: ''
   })
 
+  const [receiptType, setReceiptType] = useState({
+    receiptType: ''
+  })
+
   // for previewing image
   const [imageUrl, setImageUrl] = useState({
     imageUrl: ''
@@ -58,6 +62,25 @@ export default function Upload() {
     }
   }
 
+  const handleReceiptChange = (e) => {
+    setReceiptType({
+      receiptType: e.target.value
+    })
+    console.log(e.target.value)
+    if (e.target.value === "physical") {
+      document.getElementById("physical").style.backgroundColor = "#f3f4f6";
+      document.getElementById("physical").style.color = "#1b9aaa";
+      document.getElementById("online").style.backgroundColor = "#f8f7f6";
+      document.getElementById("online").style.color = "#05387b";
+    }
+    if (e.target.value === "online") {
+      document.getElementById("physical").style.backgroundColor = "#f8f7f6";
+      document.getElementById("physical").style.color = "#05387b";
+      document.getElementById("online").style.backgroundColor = "#f3f4f6";
+      document.getElementById("online").style.color = "#1b9aaa";
+    }
+  }
+
   const handleSubmit = (e) => {
     // Prevent the browser from reloading the page
     e.preventDefault();
@@ -74,7 +97,12 @@ export default function Upload() {
       setLoading(false);
       return;
     }
-    uploadFileToServer(name.name, image.image)
+    if (!receiptType.receiptType) {
+      setReceiptTypeError(true);
+      setLoading(false);
+      return;
+    }
+    uploadFileToServer(name.name, image.image, receiptType.receiptType)
       .then(res => {
         const receiptData = receiptJsonParser(res.data.data);
         // navigate to receipt_data page
@@ -101,16 +129,22 @@ export default function Upload() {
   const [nameError, setNameError] = useState(false);
   const [nameErrorMessage, setNameErrorMessage] = useState('Please enter a name for your image.');
   const [imageError, setImageError] = useState(false);
+  const [receiptTypeError, setReceiptTypeError] = useState(false);
   const [imageErrorMessage, setImageErrorMessage] = useState('Please upload an image.');
   let nameBorderColor = 'primary';
   let chooseFileBorderColor = 'primary';
   let chooseFileTextColor = 'primary';
+  let receiptTypeBorderColor = 'primary';
+
   if (imageError) {
     chooseFileBorderColor = 'red';
     chooseFileTextColor = 'red';
   }
   if (nameError) {
     nameBorderColor = 'red';
+  }
+  if (receiptTypeError) {
+    receiptTypeBorderColor = 'red';
   }
 
   return (
@@ -158,6 +192,28 @@ export default function Upload() {
               </div> : null
           }
         </label>
+        
+        <label class="text-center">
+          <div class="inline-flex rounded-md shadow-sm" role="group">
+            <button id="physical" type="button" value="physical" onClick={(e) => {
+                handleReceiptChange(e);
+              }} className={`border-${receiptTypeBorderColor} inline-flex items-center px-6 py-3 text-xl font-medium  text-primary bg-seasalt border border-gray-200 rounded-l-lg hover:bg-gray-100 focus:z-10 focus:bg-gray-100 focus:text-secondary dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:text-white`}>
+              Physical Receipt
+            </button>
+            <button id="online" type="button" value="online" onClick={(e) => {
+                handleReceiptChange(e);
+              }} className={`border-${receiptTypeBorderColor} inline-flex items-center px-6 py-3 text-xl font-medium text-primary bg-seasalt border border-gray-200 rounded-r-lg hover:bg-gray-100 focus:z-10 focus:bg-gray-100 focus:text-secondary dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:text-white`}>
+              Online Receipt
+            </button>
+          </div>
+        {
+            nameError ?
+              <div className={`text-sm text-red`}>
+                Please select a receipt type.
+              </div> : null
+          }
+        </label>
+
         <Button type="submit" disabled={loading}>
           {
             loading ?

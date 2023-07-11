@@ -18,47 +18,55 @@ from textblob import TextBlob
 #construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
 ap.add_argument("-i", "--image", required=True, help="path to input image to be OCR'd")
+ap.add_argument("-i", "--type", required=True, help="type of image")
 args = vars(ap.parse_args())
 
-# read the image
-img = cv2.imread(args["image"])
+if (args["type"] == "online"):
+    filename = "{}.png".format(os.getpid())
+    configuration = ("-l eng --oem 1 --psm 3")
+    text = pytesseract.image_to_string(Image.open(filename), config=configuration)
 
-# scale the image
-img = cv2.resize(img, None, fx=1.2, fy=1.2, interpolation=cv2.INTER_CUBIC)
+else:
+    # read the image
+    img = cv2.imread(args["image"])
 
-# remove noise
-img = cv2.fastNlMeansDenoisingColored(img, None, 10, 10, 7, 15)
+    # scale the image
+    img = cv2.resize(img, None, fx=1.2, fy=1.2, interpolation=cv2.INTER_CUBIC)
 
-# convert to gray
-gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+    # remove noise
+    img = cv2.fastNlMeansDenoisingColored(img, None, 10, 10, 7, 15)
 
-# blur
-#smooth = cv2.GaussianBlur(gray, (95,95), 0)
-smooth = cv2.bilateralFilter(gray,9,75,75)
+    # convert to gray
+    gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
 
-# divide gray by morphology image
-division = cv2.divide(gray, smooth, scale=255)
+    # blur
+    #smooth = cv2.GaussianBlur(gray, (95,95), 0)
+    smooth = cv2.bilateralFilter(gray,9,75,75)
 
-# sharpen using unsharp masking
-sharp = filters.unsharp_mask(division, radius=1.5, amount=1.5, preserve_range=False)
-sharp = (255*sharp).clip(0,255).astype(np.uint8)
+    # divide gray by morphology image
+    division = cv2.divide(gray, smooth, scale=255)
 
-# threshold
-#thresh = cv2.threshold(sharp, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
-#thresh = cv2.threshold(sharp,127,255,cv2.THRESH_BINARY)
-thresh = cv2.GaussianBlur(sharp, (3,3), 0)
+    # sharpen using unsharp masking
+    sharp = filters.unsharp_mask(division, radius=1.5, amount=1.5, preserve_range=False)
+    sharp = (255*sharp).clip(0,255).astype(np.uint8)
 
-filename = "{}.png".format(os.getpid())
-cv2.imwrite(filename, thresh)
+    # threshold
+    #thresh = cv2.threshold(sharp, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
+    #thresh = cv2.threshold(sharp,127,255,cv2.THRESH_BINARY)
+    thresh = cv2.GaussianBlur(sharp, (3,3), 0)
 
-#load the image as a PIL/Pillow image, apply OCR, and then delete the temporary file
-configuration = ("-l eng --oem 1 --psm 3")
-text = pytesseract.image_to_string(Image.open(filename), config=configuration)
+    filename = "{}.png".format(os.getpid())
+    cv2.imwrite(filename, thresh)
 
-#spell check
-#tb = TextBlob(text)
-#corrected = tb.correct()
-#print(corrected)
+    #load the image as a PIL/Pillow image, apply OCR, and then delete the temporary file
+    configuration = ("-l eng --oem 1 --psm 3")
+    text = pytesseract.image_to_string(Image.open(filename), config=configuration)
+
+    #spell check
+    #tb = TextBlob(text)
+    #corrected = tb.correct()
+    #print(corrected)
+
 
 os.remove(filename)
 
