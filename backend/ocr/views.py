@@ -64,7 +64,7 @@ class OCRView(APIView):
             except:
                 receipt = receipt_serializer.save()
             image = receipt_serializer.data['image']
-            if (request.data['receipt_data'] == "physical"):
+            if (request.data['receipt_type'] == "physical"):
                 os.system("python3 ocr/model/receipt_detection.py --type physical --image " + image[1:])
             else:
                 os.system("python3 ocr/model/receipt_detection.py --type online --image " + image[1:])

@@ -193,8 +193,8 @@ export default function Upload() {
           }
         </label>
         
-        <label class="text-center">
-          <div class="inline-flex rounded-md shadow-sm" role="group">
+        <label className="text-center">
+          <div className="inline-flex rounded-md shadow-sm" role="group">
             <button id="physical" type="button" value="physical" onClick={(e) => {
                 handleReceiptChange(e);
               }} className={`border-${receiptTypeBorderColor} inline-flex items-center px-6 py-3 text-xl font-medium  text-primary bg-seasalt border border-gray-200 rounded-l-lg hover:bg-gray-100 focus:z-10 focus:bg-gray-100 focus:text-secondary dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:text-white`}>

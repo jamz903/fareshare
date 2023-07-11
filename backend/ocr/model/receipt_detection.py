@@ -18,11 +18,13 @@ from textblob import TextBlob
 #construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
 ap.add_argument("-i", "--image", required=True, help="path to input image to be OCR'd")
-ap.add_argument("-i", "--type", required=True, help="type of image")
+ap.add_argument("-t", "--type", required=True, help="type of image")
 args = vars(ap.parse_args())
 
 if (args["type"] == "online"):
+    img = cv2.imread(args["image"])
     filename = "{}.png".format(os.getpid())
+    cv2.imwrite(filename, img)
     configuration = ("-l eng --oem 1 --psm 3")
     text = pytesseract.image_to_string(Image.open(filename), config=configuration)
 
