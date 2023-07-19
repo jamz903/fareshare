@@ -11,7 +11,7 @@ export const PAYMENTMETHOD = {
  * 1. items: an array of objects containing the following fields:
  *    - name: (String) name of the item
  *    - price: (Number) price of the item
- *    - qty: (Number) quantity of the item
+ *    - quantity: (Number) quantity of the item
  * 2. other: an object containing the following fields:
  *    - subTotal: (Number) sub total of the receipt
  *    - total: (Number) total of the receipt
@@ -254,7 +254,7 @@ function receiptJsonParser(receipt) {
         // process line to obtain name, quantity, price
         let price = 0.0;
         let name = '';
-        let qty = 0;
+        let quantity = 0;
         let elements = line.split(/\s+/)
             .filter((word) => !!word); // make sure no undefined, null, or empty string
         // extract price
@@ -279,7 +279,7 @@ function receiptJsonParser(receipt) {
             // 1. don't contain any non-digit characters, or
             // 2. end with an 'x'
             if (numberRegex.test(element) && (!/\D/.test(element) || /\d+[xX]$/.test(element))) {
-                qty = parseInt(element);
+                quantity = parseInt(element);
                 elements.splice(useFrontPointer ? frontPointer : backPointer, 1);
                 break;
             }
@@ -303,7 +303,7 @@ function receiptJsonParser(receipt) {
         }
         return {
             name,
-            qty,
+            quantity,
             price
         };
     };
@@ -328,12 +328,12 @@ function receiptJsonParser(receipt) {
 
     // 4. Filter out all items with an invalid quantity
     purchasedItems = purchasedItems.filter((item) => {
-        return item.qty >= 0 && item.qty < MAXIMUM_QTY_THRESHOLD;
+        return item.quantity >= 0 && item.quantity < MAXIMUM_QTY_THRESHOLD;
     });
 
     // 5. Filter out all items that have no quantity and price.
     purchasedItems = purchasedItems.filter((item) => {
-        return !(item.qty === 0 && item.price === 0.0);
+        return !(item.quantity === 0 && item.price === 0.0);
     });
 
     // 6.   Aim to hit a target price, if possible

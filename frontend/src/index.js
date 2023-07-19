@@ -21,7 +21,7 @@ import Profile from './features/profile/Profile';
 import Camera from './features/ocr/Camera';
 import Splash from './features/splash/Splash';
 import Upload from './features/ocr/Upload';
-import ReceiptData from './features/ocr/ReceiptData';
+import ReceiptData from './features/ocr/ReceiptDataScreen/ReceiptData';
 import ViewHistory from './features/ocr/ViewHistory';
 import Friends from './features/friends/Friends';
 

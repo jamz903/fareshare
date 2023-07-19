@@ -1,11 +1,14 @@
-import NavBarLayout from "../../layouts/NavBarLayout";
-import { ShoppingCartIcon, CurrencyDollarIcon, HashtagIcon, UserIcon, XMarkIcon, PlusIcon, HeartIcon, BanknotesIcon, ReceiptPercentIcon, TrashIcon, SquaresPlusIcon } from "@heroicons/react/24/outline";
-import TextareaAutoSize from "react-textarea-autosize";
+// components
+import NavBarLayout from "../../../layouts/NavBarLayout";
+import { ShoppingCartIcon, CurrencyDollarIcon, HashtagIcon, UserIcon, XMarkIcon, HeartIcon, BanknotesIcon, ReceiptPercentIcon, TrashIcon, SquaresPlusIcon } from "@heroicons/react/24/outline";
+import Button from "../../../components/Buttons/Button";
+import { LightSpinner } from "../../../components/Spinner";
+import ReceiptDataRow from "./ReceiptDataRow";
+import TableButton from "./TableButton";
+// other
 import { useState, useRef, useEffect } from "react";
-import { PAYMENTMETHOD } from "./ReceiptJsonParser";
-import Button from "../../components/Buttons/Button";
-import { LightSpinner } from "../../components/Spinner";
-import updateReceiptObject from "./UpdateReceiptObject";
+import { PAYMENTMETHOD } from "../ReceiptJsonParser";
+import updateReceiptObject from "../UpdateReceiptObject";
 // router
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
@@ -14,6 +17,8 @@ import axios from "axios";
 import Cookies from "js-cookie";
 // debounce
 import { debounce } from "lodash";
+// redux store
+import { useSelector } from "react-redux";
 
 const TAX_RATE = 0.08;
 const SVC_RATE = 0.1;
@@ -31,131 +36,143 @@ const obtainRandomColorSet = () => {
     return COLOR_SETS[Math.floor(Math.random() * COLOR_SETS.length)];
 }
 
-function AssigneeBubble({ friend, onClick = () => { }, icon = null }) {
-    const colorSet = friend ? friend.colorSet : '';
-    const username = friend ? friend.username : '';
-    return (
-        <div className={`flex flex-row p-1 px-3 items-center place-content-between rounded-full ${colorSet}`} onClick={onClick}>
-            <div className="text-ellipsis overflow-hidden">
-                {username}
-            </div>
-            {icon ?
-                <div className="w-4">
-                    {icon}
-                </div> : null
-            }
-        </div>
-    )
+/*
+const NULL_RECEIPT_DATA = {
+    items: [
+        {
+            id: 2340928350,
+            name: 'hello world',
+            price: 0,
+            quantity: 0,
+            assignees: [],
+        }
+    ],
+    other: {
+        subTotal: 0,
+        total: 0,
+        tax: 0,
+        serviceCharge: 0,
+        discount: 0,
+        paymentMethod: PAYMENTMETHOD.CASH,
+        paidAmount: 0,
+        change: 0,
+    }
 }
-
-function TableButton({ className = '', onClick = () => { }, children }) {
-    return (
-        <button
-            onClick={onClick}
-            className={"border border-slate-400 rounded-md w-full font-light p-1 flex flex-row items-center gap-1 place-content-center " + className}>
-            {children}
-        </button>
-    )
-}
+*/
 
 export default function ReceiptData() {
-
-    const [friends, setFriends] = useState([]);
-
-    const getFriends = async () => {
-        // obtain friends
-        // axios config
-        // set axios config headers
-        const config = {
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'X-CSRFToken': Cookies.get('csrftoken'),
-            }
-        }
-        const response = await axios.get('/friends/get-friends', config)
-            .then(res => {
-                return res.data
-            }).catch(err => {
-                console.err(err);
-            })
-        let friendList = response.friends
-        friendList = friendList.sort((a, b) => a.username.localeCompare(b.username))
-        friendList.unshift({
-            username: "Me",
-        })
-        friendList.forEach((friend, index) => {
-            friend.colorSet = obtainRandomColorSet();
-        });
-        setFriends(friendList);
-    }
+    const navigate = useNavigate();
+    const location = useLocation();
+    const receiptId = location.state.id;
+    const username = useSelector(state => state.auth.username);
 
     useEffect(() => {
-        getFriends();
-    }, []);
-
-    const navigate = useNavigate();
-
-    const location = useLocation();
-    let { id, receiptData } = location.state ? location.state : {};
-    console.log(receiptData);
-    // dummy receipt data
-    if (!receiptData) {
-        receiptData = {
-            items: [
-                {
-                    "name": "Coke Light 20x Extra Small",
-                    "price": null,
-                    "qty": 1,
-                    "assigneesIndexes": [0]
-                },
-                {
-                    "name": "Pepsi",
-                    "price": 1.99,
-                    "qty": 1,
-                    "assigneesIndexes": [1, 2]
-                },
-                {
-                    "name": "Sprite",
-                    "price": 1.99,
-                    "qty": 1,
-                    "assigneesIndexes": null
-                },
-                {
-                    "name": "Double Cheeseburger Set Meal",
-                    "price": 5.99,
-                    "qty": 3,
-                    "assigneesIndexes": [0, 1, 2]
-                },
-                {
-                    "name": "Teh O Ice Limau",
-                    "price": 3.50,
-                    "qty": 3,
-                    "assigneesIndexes": [3, 4, 5]
+        const getFriends = async () => {
+            // obtain friends
+            // axios config
+            // set axios config headers
+            const config = {
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': Cookies.get('csrftoken'),
                 }
-            ],
-            other: {
-                subTotal: 0,
-                total: 0,
-                tax: 0,
-                serviceCharge: 0,
-                discount: 0,
-                paymentMethod: PAYMENTMETHOD.CASH,
-                paidAmount: 0,
-                change: 0,
             }
+            const response = await axios.get('/friends/get-friends', config)
+                .then(res => {
+                    return res.data
+                }).catch(err => {
+                    console.error(err);
+                })
+            let friendList = response.friends ? response.friends : [];
+            friendList = friendList.sort((a, b) => a.username.localeCompare(b.username))
+            friendList.unshift({
+                username: username,
+            })
+            friendList.forEach((friend, index) => {
+                friend.colorSet = obtainRandomColorSet();
+            });
+            setFriends(friendList);
         }
-    }
 
-    const [items, setItems] = useState(receiptData.items);
-    const [tax, setTax] = useState(receiptData.other.tax);
-    const [serviceCharge, setServiceCharge] = useState(receiptData.other.serviceCharge);
+        const getReceiptData = async () => {
+            // obtain receipt data
+            // axios config
+            // set axios config headers
+            const config = {
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': Cookies.get('csrftoken'),
+                }
+            }
+            const data = await axios.post('/ocr/receipt_items_by_receipt/', { id: receiptId }, config)
+                .then(res => {
+                    return res.data
+                }).catch(err => {
+                    let message = '';
+                    if (!!err.response.status) {
+                        message = err.response.data.error;
+                    } else if (!!err.message) {
+                        message = err.message;
+                    } else {
+                        message = 'An unexpected error has occurred.'
+                    }
+                    console.error(message);
+                    window.alert(message);
+                })
+            const responseItems = data.items ? data.items : [];
+            const responseOther = data.other ? data.other : {};
+            const newReceiptData = {
+                items: responseItems,
+                // TODO: fix this, some dummy data first
+                other: responseOther,
+            }
+            console.log(newReceiptData)
+            setItems(newReceiptData.items);
+            setTax(newReceiptData.other.tax);
+            setServiceCharge(newReceiptData.other.serviceCharge);
+            setDiscount(newReceiptData.other.discount);
+            setSubTotal(newReceiptData.other.subTotal);
+            setPaymentMethod(newReceiptData.other.paymentMethod);
+            setPaidAmount(newReceiptData.other.paidAmount);
+            setChange(newReceiptData.other.change);
+        }
+
+        if (location.state.receiptData) {
+            const items = location.state.receiptData.items;
+            const other = location.state.receiptData.other;
+            setItems(items);
+            setTax(other.tax);
+            setServiceCharge(other.serviceCharge);
+            setDiscount(other.discount);
+        } else {
+            getReceiptData();
+        }
+        getFriends();
+    }, [receiptId, username, location.state.receiptData]);
+
+    // friends
+    const [friends, setFriends] = useState([]);
+    // items
+    const [items, setItems] = useState([]);
+    // other
+    const [tax, setTax] = useState(0.0);
+    const [serviceCharge, setServiceCharge] = useState(0.0);
+    const [discount, setDiscount] = useState(0.0);
+    const [subTotal, setSubTotal] = useState(0.0);
+    const [paymentMethod, setPaymentMethod] = useState(PAYMENTMETHOD.CASH);
+    const [paidAmount, setPaidAmount] = useState(0.0);
+    const [change, setChange] = useState(0.0);
+    // functional state
     const priceTax = useRef(tax);
     const priceServiceCharge = useRef(serviceCharge);
-    const [discount, setDiscount] = useState(receiptData.other.discount);
     const [taxExcluded, setTaxExcluded] = useState(true);
     const [svcExcluded, setSvcExcluded] = useState(true);
     const [discountExcluded, setDiscountExcluded] = useState(true);
+    // marking receipt items (for the server) to deleted
+    const [idsToDelete, setIdsToDelete] = useState([]);
+
     const calculateExclusionText = () => {
         const textArr = [];
         if (taxExcluded) {
@@ -176,141 +193,6 @@ export default function ReceiptData() {
         }
     }
     const exclusionText = calculateExclusionText();
-
-    // Component for each item row
-    function ReceiptDataRow({ name, price, quantity, assigneesIndexes, dataRowIndex }) {
-
-        if (!assigneesIndexes) {
-            assigneesIndexes = [];
-        }
-
-        if (assigneesIndexes) {
-            assigneesIndexes = assigneesIndexes.sort();
-        }
-
-        const [m_name, setName] = useState(name);
-        const [m_price, setPrice] = useState(price);
-        const [m_quantity, setQuantity] = useState(quantity);
-
-        // compute friendIndexes not in assigneesIndexes
-        const nonAssigneesIndexes = friends.map((friend, index) => {
-            if (!assigneesIndexes.includes(index)) {
-                return index;
-            } else {
-                return -1;
-            }
-        }).filter(index => index !== -1).sort();
-
-        const addAssigneeIndex = (index) => {
-            changeItemAssignees([...assigneesIndexes, index], dataRowIndex);
-        }
-        const removeAssigneeIndex = (index) => {
-            changeItemAssignees(assigneesIndexes.filter(i => i !== index), dataRowIndex);
-        }
-
-        // for dropdown menu
-        // parent keeps track of which dropdown is open. so when the parent re-renders, the appropriate dropdown will open/stay open.
-        const showAssigneeDropdown = dataRowIndexDropdownOpen === dataRowIndex;
-        const openAssigneeDropdown = () => {
-            setDataRowIndexDropdownOpen(dataRowIndex);
-        }
-
-        return (
-            <tr className="border-y border-slate-200">
-                {
-                    deletionMode ?
-                        <td className="p-1">
-                            <input
-                                type="checkbox"
-                                className="w-full h-full"
-                                defaultChecked={selectedRows.includes(dataRowIndex)}
-                                onChange={e => {
-                                    if (e.target.checked) {
-                                        setSelectedRows([...selectedRows, dataRowIndex]);
-                                    } else {
-                                        setSelectedRows(selectedRows.filter(i => i !== dataRowIndex));
-                                    }
-                                }} />
-                        </td> : null
-                }
-                <td className="p-1">
-                    <TextareaAutoSize
-                        key={`textarea-${dataRowIndex}`}
-                        defaultValue={m_name}
-                        placeholder="Enter item name"
-                        onChange={e => setName(e.target.value)}
-                        onBlur={e => changeItemName(e.target.value, dataRowIndex)}
-                        className="w-full bg-seasalt align-top" />
-                </td>
-                <td className="p-1">
-                    <input
-                        key={`quantity-${dataRowIndex}`}
-                        type="number"
-                        defaultValue={m_quantity}
-                        onChange={e => setQuantity(e.target.value)}
-                        onBlur={e => changeItemQuantity(e.target.value, dataRowIndex)}
-                        className="w-full bg-seasalt" />
-                </td>
-                <td className="p-1">
-                    <div className="flex flex-row gap-1">
-                        <div>
-                            $
-                        </div>
-                        <input
-                            key={`price-${dataRowIndex}`}
-                            type="number"
-                            defaultValue={m_price}
-                            onChange={e => setPrice(e.target.value)}
-                            onBlur={e => changeItemPrice(e.target.value, dataRowIndex)}
-                            className="w-full bg-seasalt" />
-                    </div>
-                </td>
-                <td className="p-1 relative" onClick={openAssigneeDropdown}>
-                    {showAssigneeDropdown ?
-                        <div className="z-20 absolute top-0 right-0 w-40 flex flex-col gap-2 p-2 bg-seasalt rounded-lg w-4/12 drop-shadow">
-                            <div className="flex flex-col p-1 gap-1">
-                                <div className="text-xs font-light">
-                                    Assigned
-                                </div>
-                                {
-                                    assigneesIndexes.map((friendIndex, index) => {
-                                        return <AssigneeBubble
-                                            key={`assignee-${index}`}
-                                            friend={friends[friendIndex]}
-                                            onClick={() => removeAssigneeIndex(friendIndex)}
-                                            icon={<XMarkIcon className="w-4 h-4" />}
-                                        />
-                                    })
-                                }
-                            </div>
-                            <hr className="text-secondary" />
-                            <div className="flex flex-col p-1 gap-1">
-                                <div className="text-xs font-light">
-                                    Other Friends
-                                </div>
-                                <div className="flex flex-col gap-1 overflow-y-auto max-h-40">
-                                    {nonAssigneesIndexes
-                                        .map((friendIndex, index) => {
-                                            return <AssigneeBubble
-                                                key={`friends-not-in-assignee-${index}`}
-                                                friend={friends[friendIndex]}
-                                                onClick={() => addAssigneeIndex(friendIndex)}
-                                                icon={<PlusIcon className="w-4 h-4" />} />
-                                        })}
-                                </div>
-                            </div>
-                        </div>
-
-                        : null}
-                    <div className="flex flex-col gap-1">
-                        {assigneesIndexes.map((friendIndex, index) => {
-                            return <AssigneeBubble key={index} friend={friends[friendIndex]} />
-                        })}
-                    </div>
-                </td>
-            </tr>
-        )
-    }
 
     // helper functions
     // open/close dropdowns for ReceiptDataRow
@@ -333,14 +215,14 @@ export default function ReceiptData() {
     // change the quantity of an item
     const changeItemQuantity = (newQuantity, index) => {
         const new_items = [...items];
-        new_items[index].qty = newQuantity;
+        new_items[index].quantity = newQuantity;
         setItems(new_items);
     };
     // change the assignees of an item
-    const changeItemAssignees = (newAssigneesIndexes, index) => {
+    const changeItemAssignees = (newAssignees, index) => {
         const new_items = [...items];
-        new_items[index].assigneesIndexes = newAssigneesIndexes;
-        setItems(new_items.sort());
+        new_items[index].assignees = newAssignees;
+        setItems(new_items);
     };
     // calculate total price of the receipt
     const totalPrice = () => {
@@ -407,14 +289,13 @@ export default function ReceiptData() {
 
     // add row
     const addRow = () => {
-        const new_items = [...items];
-        new_items.push({
+        const newItem = {
             name: "",
             price: 0.00,
             quantity: 0,
-            assigneesIndexes: []
-        });
-        setItems(new_items);
+            assignees: []
+        }
+        setItems([...items, newItem]);
     };
     // deletion mode
     const [deletionMode, setDeletionMode] = useState(false);
@@ -427,20 +308,36 @@ export default function ReceiptData() {
         setDeletionMode(false);
         setSelectedRows([]);
     };
+    const toggleRowSelection = (index) => {
+        if (selectedRows.includes(index)) {
+            setSelectedRows(selectedRows.filter(row => row !== index));
+        } else {
+            setSelectedRows([...selectedRows, index]);
+        }
+    };
     // delete rows
     const deleteRows = (indexes) => {
-        let new_items = [...items];
-        new_items = new_items.filter((item, index) => {
-            return !indexes.includes(index);
+        const newItems = [];
+        const additionalIdsToDelete = [];
+        items.forEach((item, index) => {
+            if (!indexes.includes(index)) {
+                newItems.push(item);
+            } else {
+                // mark item as deleted if it has an id (new items have no id)
+                if (item.id) {
+                    additionalIdsToDelete.push(item.id);
+                }
+            }
         });
-        setItems(new_items);
+        setItems(newItems);
+        setIdsToDelete([...idsToDelete, ...additionalIdsToDelete]);
         closeDeletionMode();
     };
 
     // calculate personal expenses
     const calculatePersonalExpenses = (receipt_data) => {
         const my_items = receipt_data.items.filter(item => {
-            if (item.assigneesIndexes && item.assigneesIndexes.includes(0)) {
+            if (item.assignees && item.assignees.includes(username)) {
                 return true;
             } else {
                 return false;
@@ -448,7 +345,7 @@ export default function ReceiptData() {
         });
         let my_expenses = 0;
         my_items.forEach(item => {
-            my_expenses += parseFloat(item.price) / item.assigneesIndexes.length;
+            my_expenses += parseFloat(item.price) / item.assignees.length;
         });
         return my_expenses;
     };
@@ -457,22 +354,23 @@ export default function ReceiptData() {
     const [saving, setSaving] = useState(false);
     const saveData = (e) => {
         setSaving(true);
+        // construct receipt data object
         const new_receipt_data = {
             items: items,
             other: {
-                subTotal: receiptData.other.subTotal,
+                subTotal: subTotal,
                 total: totalPrice(),
                 tax: tax,
                 serviceCharge: serviceCharge,
                 discount: discount,
-                paymentMethod: receiptData.other.paymentMethod,
-                paidAmount: receiptData.other.paidAmount,
-                change: receiptData.other.change,
+                paymentMethod: paymentMethod,
+                paidAmount: paidAmount,
+                change: change,
             }
         }
         // calculate personal expenses
         const my_expenses = calculatePersonalExpenses(new_receipt_data);
-        updateReceiptObject(my_expenses, id, new_receipt_data)
+        updateReceiptObject(my_expenses, receiptId, new_receipt_data, idsToDelete)
             .then(() => {
                 navigate("/receipts");
             })
@@ -547,9 +445,19 @@ export default function ReceiptData() {
                                 key={`receipt-data-row-${index}`}
                                 name={item.name}
                                 price={item.price}
-                                quantity={item.qty}
-                                assigneesIndexes={item.assigneesIndexes}
-                                dataRowIndex={index} />;
+                                quantity={item.quantity}
+                                assignees={item.assignees}
+                                friends={friends}
+                                updateName={(newName) => changeItemName(newName, index)}
+                                updatePrice={(newPrice) => changeItemPrice(newPrice, index)}
+                                updateQuantity={(newQuantity) => changeItemQuantity(newQuantity, index)}
+                                updateAssignees={(newAssignees) => changeItemAssignees(newAssignees, index)}
+                                openAssigneeDropdown={() => setDataRowIndexDropdownOpen(index)}
+                                showAssigneeDropdown={dataRowIndexDropdownOpen === index}
+                                deletionMode={deletionMode}
+                                isChecked={selectedRows.includes(index)}
+                                toggleChecked={() => toggleRowSelection(index)}
+                            />;
                         })}
                         <tr className="border-b border-slate-400">
                             {

@@ -105,7 +105,8 @@ export default function Upload() {
     uploadFileToServer(name.name, image.image, receiptType.receiptType)
       .then(res => {
         const receiptData = receiptJsonParser(res.data.data);
-        // navigate to receipt_data page
+        console.log(receiptData);
+        // navigate to receipt_data page with parsed receipt data
         navigate("/receipt_data", { state: { id: res.data.id, receiptData: receiptData } });
       })
       .catch(err => {
@@ -192,21 +193,21 @@ export default function Upload() {
               </div> : null
           }
         </label>
-        
+
         <label className="text-center">
           <div className="inline-flex rounded-md shadow-sm" role="group">
             <button id="physical" type="button" value="physical" onClick={(e) => {
-                handleReceiptChange(e);
-              }} className={`border-${receiptTypeBorderColor} inline-flex items-center px-6 py-3 text-xl font-medium  text-primary bg-seasalt border border-gray-200 rounded-l-lg hover:bg-gray-100 focus:z-10 focus:bg-gray-100 focus:text-secondary dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:text-white`}>
+              handleReceiptChange(e);
+            }} className={`border-${receiptTypeBorderColor} inline-flex items-center px-6 py-3 text-xl font-medium  text-primary bg-seasalt border border-gray-200 rounded-l-lg hover:bg-gray-100 focus:z-10 focus:bg-gray-100 focus:text-secondary dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:text-white`}>
               Physical Receipt
             </button>
             <button id="online" type="button" value="online" onClick={(e) => {
-                handleReceiptChange(e);
-              }} className={`border-${receiptTypeBorderColor} inline-flex items-center px-6 py-3 text-xl font-medium text-primary bg-seasalt border border-gray-200 rounded-r-lg hover:bg-gray-100 focus:z-10 focus:bg-gray-100 focus:text-secondary dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:text-white`}>
+              handleReceiptChange(e);
+            }} className={`border-${receiptTypeBorderColor} inline-flex items-center px-6 py-3 text-xl font-medium text-primary bg-seasalt border border-gray-200 rounded-r-lg hover:bg-gray-100 focus:z-10 focus:bg-gray-100 focus:text-secondary dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:hover:text-white dark:hover:bg-gray-600 dark:focus:text-white`}>
               Online Receipt
             </button>
           </div>
-        {
+          {
             nameError ?
               <div className={`text-sm text-red`}>
                 Please select a receipt type.

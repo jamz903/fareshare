@@ -87,42 +87,85 @@ class OCRView(APIView):
     
 class ReceiptDataView(APIView):
     parser_classes = (MultiPartParser, FormParser)
-
-    def get(self, request, *args, **kwargs):
-        data = request.data
-        receipt = Receipt.objects.get(id=data['id'])
-        # get items from receipt
-        receipt_items = ReceiptItem.objects.filter(receipt=receipt)
-        return JsonResponse({"receipt_items": receipt_items, "id": receipt.pk, "name": receipt.name})
     
+    # save receipt data for a certain receipt id
     def post(self, request, *args, **kwargs):
         data = request.data
-        # jsonData = json.dumps(data['processed_data'])
-        receipt = Receipt.objects.get(id=data['id'])
-        # receipt.processed_data = jsonData
+        # save receipt
+        query = Receipt.objects.filter(id=data['id'])
+        if len(query) == 0:
+            return Response({"error": "Invalid receipt id"}, status=status.HTTP_400_BAD_REQUEST)
+        receipt = query[0]
         receipt.my_expenses = data['my_expenses']
         receipt.save()
+        # receipt fields
+        processed_data = json.loads(data['processed_data'])
+        ids_to_delete = json.loads(data['ids_to_delete'])
+        receipt_items = processed_data['items'] # array containing receipt items
+        other = processed_data['other'] # object containing other relevant data such as total, tax, etc.
+        # delete receipt items
+        ReceiptItem.objects.filter(id__in=ids_to_delete).delete()
         # save receipt items
-        for receipt_item in data['receipt_items']:
-            receipt_item_serializer = ReceiptItemSerializer(data=receipt_item)
-            if receipt_item_serializer.is_valid():
-                receipt_item_serializer.save()
+        for receipt_item in receipt_items:
+            if 'assignees' not in receipt_item:
+                receipt_item['assignees'] = []
+            if 'id' in receipt_item:
+                # update existing receipt item
+                receipt_item_id = receipt_item['id']
+                receipt_item_obj = ReceiptItem.objects.get(id=receipt_item_id)
+                receipt_item_obj.name = receipt_item['name']
+                receipt_item_obj.price = receipt_item['price']
+                receipt_item_obj.quantity = receipt_item['quantity']
+                receipt_item_obj.assignees.clear()
+                for username in receipt_item['assignees']:
+                    query = User.objects.filter(username=username)
+                    if len(query) == 0:
+                        return Response({"error": "Invalid username assigned to receipt item"}, status=status.HTTP_400_BAD_REQUEST)
+                    user = query[0]
+                    receipt_item_obj.assignees.add(user)
+                receipt_item_obj.save()
             else:
-                print('error', receipt_item_serializer.errors)
-        return Response(data)
+                # create new receipt item
+                new_item = ReceiptItem.objects.create(
+                    receipt=receipt,
+                    name=receipt_item['name'],
+                    price=receipt_item['price'],
+                    quantity=receipt_item['quantity'],
+                )
+                new_item.save()
+                for username in receipt_item['assignees']:
+                    query = User.objects.filter(username=username)
+                    if len(query) == 0:
+                        return Response({"error": "Invalid username assigned to receipt item"}, status=status.HTTP_400_BAD_REQUEST)
+                    user = query[0]
+                    new_item.assignees.add(user)
+        
+        return Response({"success": "Receipt data saved successfully"}, status=status.HTTP_200_OK)
+    
 
 class ReceiptItemByReceiptView(APIView):
-    def get(self, request, *args, **kwargs):
+    # obtain receipt items for a certain receipt id
+    def post(self, request, *args, **kwargs):
         data = request.data
-        receipt = Receipt.objects.get(id=data['id'])
+        id  = data.get('id')
+        # validate request
+        if id is None:
+            return Response({"error": "No receipt id provided"}, status=status.HTTP_400_BAD_REQUEST)
+        # check if receipt exists
+        query = Receipt.objects.filter(pk=id)
+        if len(query) == 0:
+            return Response({"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND)
+        # get items from receipt
+        receipt = query[0]
         receipt_items = ReceiptItem.objects.filter(receipt=receipt)
         serializer = ReceiptItemSerializer(receipt_items, many=True)
-        return Response(status=status.HTTP_200_OK, data=serializer.data)
+        return JsonResponse(data={"items": serializer.data, "id": receipt.pk, "name": receipt.name}, status=status.HTTP_200_OK)
 
 class ReceiptItemByUserView(APIView):
-    def get(self, request, *args, **kwargs):
+    # obtain receipt items for a certain user
+    def post(self, request, *args, **kwargs):
         data = request.data
-        user = User.objects.get(id=data['username'])
-        receipt_items = ReceiptItem.objects.filter(assigned_users=user)
+        user = User.objects.get(username=data['username'])
+        receipt_items = user.receiptitem_set.all()
         serializer = ReceiptItemSerializer(receipt_items, many=True)
         return Response(status=status.HTTP_200_OK, data=serializer.data)

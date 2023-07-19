@@ -13,32 +13,6 @@ function Home() {
     const [loadingExpenses, setLoadingExpenses] = useState(true);
     const [expensesErrorMessage, setExpensesErrorMessage] = useState("");
 
-    const getExpenses = async () => {
-        // set axios config headers
-        const config = {
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'X-CSRFToken': Cookies.get('csrftoken'),
-            }
-        }
-        // get receipts
-        const promises = [];
-        const response = axios.get('/ocr/upload/', config)
-            .then(res => {
-                setLoadingExpenses(false);
-                return res.data
-            }).catch(err => {
-                setLoadingExpenses(false);
-                setExpensesErrorMessage(err.response.data.message)
-                return [];
-            })
-        promises.push(response);
-        const result = await Promise.all(promises);
-        const expenses = calculateExpenses(result[0]);
-        setExpense(expenses);
-    }
-
     const calculateExpenses = (receiptsArray) => {
         if (!receiptsArray) return 0;
         const num = receiptsArray.reduce((total, receipt) => {
@@ -49,6 +23,32 @@ function Home() {
     }
 
     useEffect(() => {
+        const getExpenses = async () => {
+            // set axios config headers
+            const config = {
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': Cookies.get('csrftoken'),
+                }
+            }
+            // get receipts
+            const promises = [];
+            const response = axios.get('/ocr/upload/', config)
+                .then(res => {
+                    setLoadingExpenses(false);
+                    return res.data
+                }).catch(err => {
+                    setLoadingExpenses(false);
+                    setExpensesErrorMessage(err.response.data.message)
+                    return [];
+                })
+            promises.push(response);
+            const result = await Promise.all(promises);
+            const expenses = calculateExpenses(result[0]);
+            setExpense(expenses);
+        }
+
         getExpenses();
     }, []);
 
