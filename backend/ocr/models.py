@@ -23,7 +23,7 @@ class ReceiptItem(models.Model):
     receipt = models.ForeignKey(Receipt, on_delete=models.CASCADE)
     price = models.FloatField()
     quantity = models.IntegerField()
-    assigned_users = models.ManyToManyField(User, blank=True)
+    assignees = models.ManyToManyField(User, blank=True)
 
     def __str__(self):
         return self.name
