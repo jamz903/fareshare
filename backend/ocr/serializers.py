@@ -8,7 +8,7 @@ class ReceiptSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'image', 'my_expenses', 'created_by')
 
 class ReceiptItemSerializer(serializers.ModelSerializer):
-    assigned_users = serializers.StringRelatedField(many=True)
+    assignees = serializers.StringRelatedField(many=True)
     receipt = serializers.PrimaryKeyRelatedField(queryset=Receipt.objects.all())
 
     class Meta:
