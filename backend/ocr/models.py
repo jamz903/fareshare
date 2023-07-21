@@ -9,6 +9,10 @@ class Receipt(models.Model):
     # processed_data = models.CharField(max_length=2000,null=True,blank=True)
     my_expenses = models.FloatField(null=True, blank=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    date_created = models.DateTimeField(auto_now_add=True)
+    tax = models.FloatField(default=0.00, blank=True)
+    service_charge = models.FloatField(default=0.00, blank=True)
+    discounts = models.FloatField(default=0.00, blank=True)
 
     def save_model(self, request, obj, form, change):
         obj.created_by = request.user

@@ -109,6 +109,10 @@ export default function ViewHistory() {
         setIncludeTax(false);
         setIncludeServiceCharge(false);
         setIncludeDiscounts(false);
+        const receipt = data.find(receipt => receipt.id === receiptId);
+        setPaymentTax(receipt.tax);
+        setPaymentServiceCharge(receipt.service_charge);
+        setPaymentDiscounts(receipt.discounts);
         clearReceiptPayments();
         fetchReceiptPayments(receiptId);
         dialogRef.current.showModal();

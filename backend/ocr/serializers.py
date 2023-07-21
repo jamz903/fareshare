@@ -5,7 +5,7 @@ class ReceiptSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(required=False)
     class Meta:
         model = Receipt
-        fields = ('id', 'name', 'image', 'my_expenses', 'created_by')
+        fields = ('id', 'name', 'image', 'my_expenses', 'created_by', 'date_created', 'tax', 'service_charge', 'discounts')
 
 class ReceiptItemSerializer(serializers.ModelSerializer):
     assignees = serializers.StringRelatedField(many=True)
