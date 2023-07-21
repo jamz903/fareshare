@@ -122,7 +122,17 @@ export default function ReceiptData() {
                     window.alert(message);
                 })
             const responseItems = data.items ? data.items : [];
-            const responseOther = data.other ? data.other : {};
+            const responseOther = data.other ? data.other : {
+                // populate with default values
+                subTotal: 0,
+                total: 0,
+                tax: 0,
+                serviceCharge: 0,
+                discount: 0,
+                paymentMethod: PAYMENTMETHOD.CASH,
+                paidAmount: 0,
+                change: 0,
+            };
             const newReceiptData = {
                 items: responseItems,
                 // TODO: fix this, some dummy data first
@@ -165,8 +175,8 @@ export default function ReceiptData() {
     const [paidAmount, setPaidAmount] = useState(0.0);
     const [change, setChange] = useState(0.0);
     // functional state
-    const priceTax = useRef(tax);
-    const priceServiceCharge = useRef(serviceCharge);
+    const priceTax = useRef(null);
+    const priceServiceCharge = useRef(null);
     const [taxExcluded, setTaxExcluded] = useState(true);
     const [svcExcluded, setSvcExcluded] = useState(true);
     const [discountExcluded, setDiscountExcluded] = useState(true);
