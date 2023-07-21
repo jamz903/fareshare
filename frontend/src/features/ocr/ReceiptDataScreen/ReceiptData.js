@@ -7,7 +7,6 @@ import ReceiptDataRow from "./ReceiptDataRow";
 import TableButton from "./TableButton";
 // other
 import { useState, useRef, useEffect } from "react";
-import { PAYMENTMETHOD } from "../ReceiptJsonParser";
 import updateReceiptObject from "../UpdateReceiptObject";
 // router
 import { useNavigate } from "react-router-dom";
@@ -36,35 +35,28 @@ const obtainRandomColorSet = () => {
     return COLOR_SETS[Math.floor(Math.random() * COLOR_SETS.length)];
 }
 
-/*
-const NULL_RECEIPT_DATA = {
-    items: [
-        {
-            id: 2340928350,
-            name: 'hello world',
-            price: 0,
-            quantity: 0,
-            assignees: [],
-        }
-    ],
-    other: {
-        subTotal: 0,
-        total: 0,
-        tax: 0,
-        serviceCharge: 0,
-        discount: 0,
-        paymentMethod: PAYMENTMETHOD.CASH,
-        paidAmount: 0,
-        change: 0,
-    }
-}
-*/
-
 export default function ReceiptData() {
     const navigate = useNavigate();
     const location = useLocation();
     const receiptId = location.state.id;
     const username = useSelector(state => state.auth.username);
+    // friends
+    const [friends, setFriends] = useState([]);
+    // items
+    const [items, setItems] = useState([]);
+    // other
+    const [tax, setTax] = useState(0.0);
+    const [serviceCharge, setServiceCharge] = useState(0.0);
+    const [discounts, setDiscounts] = useState(0.0);
+    // functional state
+    const priceTax = useRef(null);
+    const priceServiceCharge = useRef(null);
+    const priceDiscounts = useRef(null);
+    const [taxExcluded, setTaxExcluded] = useState(true);
+    const [svcExcluded, setSvcExcluded] = useState(true);
+    const [discountsExcluded, setDiscountExcluded] = useState(true);
+    // marking receipt items (for the server) to deleted
+    const [idsToDelete, setIdsToDelete] = useState([]);
 
     useEffect(() => {
         const getFriends = async () => {
@@ -124,29 +116,18 @@ export default function ReceiptData() {
             const responseItems = data.items ? data.items : [];
             const responseOther = data.other ? data.other : {
                 // populate with default values
-                subTotal: 0,
-                total: 0,
                 tax: 0,
                 serviceCharge: 0,
-                discount: 0,
-                paymentMethod: PAYMENTMETHOD.CASH,
-                paidAmount: 0,
-                change: 0,
+                discounts: 0,
             };
             const newReceiptData = {
                 items: responseItems,
-                // TODO: fix this, some dummy data first
                 other: responseOther,
             }
-            console.log(newReceiptData)
             setItems(newReceiptData.items);
             setTax(newReceiptData.other.tax);
             setServiceCharge(newReceiptData.other.serviceCharge);
-            setDiscount(newReceiptData.other.discount);
-            setSubTotal(newReceiptData.other.subTotal);
-            setPaymentMethod(newReceiptData.other.paymentMethod);
-            setPaidAmount(newReceiptData.other.paidAmount);
-            setChange(newReceiptData.other.change);
+            setDiscounts(newReceiptData.other.discounts);
         }
 
         if (location.state.receiptData) {
@@ -155,33 +136,23 @@ export default function ReceiptData() {
             setItems(items);
             setTax(other.tax);
             setServiceCharge(other.serviceCharge);
-            setDiscount(other.discount);
+            setDiscounts(other.discounts);
         } else {
             getReceiptData();
         }
         getFriends();
-    }, [receiptId, username, location.state.receiptData]);
 
-    // friends
-    const [friends, setFriends] = useState([]);
-    // items
-    const [items, setItems] = useState([]);
-    // other
-    const [tax, setTax] = useState(0.0);
-    const [serviceCharge, setServiceCharge] = useState(0.0);
-    const [discount, setDiscount] = useState(0.0);
-    const [subTotal, setSubTotal] = useState(0.0);
-    const [paymentMethod, setPaymentMethod] = useState(PAYMENTMETHOD.CASH);
-    const [paidAmount, setPaidAmount] = useState(0.0);
-    const [change, setChange] = useState(0.0);
-    // functional state
-    const priceTax = useRef(null);
-    const priceServiceCharge = useRef(null);
-    const [taxExcluded, setTaxExcluded] = useState(true);
-    const [svcExcluded, setSvcExcluded] = useState(true);
-    const [discountExcluded, setDiscountExcluded] = useState(true);
-    // marking receipt items (for the server) to deleted
-    const [idsToDelete, setIdsToDelete] = useState([]);
+        // update tax, service charge, and discounts values
+        if (tax) {
+            priceTax.current.value = tax;
+        }
+        if (serviceCharge) {
+            priceServiceCharge.current.value = serviceCharge;
+        }
+        if (discounts) {
+            priceDiscounts.current.value = discounts;
+        }
+    }, [receiptId, username, location.state.receiptData, discounts, serviceCharge, tax]);
 
     const calculateExclusionText = () => {
         const textArr = [];
@@ -191,8 +162,8 @@ export default function ReceiptData() {
         if (svcExcluded) {
             textArr.push("Service Charge");
         }
-        if (discountExcluded) {
-            textArr.push("Discount");
+        if (discountsExcluded) {
+            textArr.push("Discounts");
         }
         if (textArr.length === 0) {
             return "";
@@ -249,8 +220,8 @@ export default function ReceiptData() {
         if (!svcExcluded) {
             total += serviceCharge;
         }
-        if (!discountExcluded) {
-            total -= discount;
+        if (!discountsExcluded) {
+            total -= discounts;
         }
         // truncate to 2 decimal places
         total = Math.round(total * 100) / 100;
@@ -368,14 +339,9 @@ export default function ReceiptData() {
         const new_receipt_data = {
             items: items,
             other: {
-                subTotal: subTotal,
-                total: totalPrice(),
                 tax: tax,
                 serviceCharge: serviceCharge,
-                discount: discount,
-                paymentMethod: paymentMethod,
-                paidAmount: paidAmount,
-                change: change,
+                discounts: discounts,
             }
         }
         // calculate personal expenses
@@ -624,7 +590,7 @@ export default function ReceiptData() {
                                 <div className="flex flex-row gap-1 items-center font-light">
                                     <ReceiptPercentIcon className="h-3 w-3" />
                                     <div>
-                                        Discount
+                                        Discounts
                                     </div>
                                 </div>
                             </td>
@@ -634,10 +600,11 @@ export default function ReceiptData() {
                                         $
                                     </div>
                                     <input
-                                        key={`price-discount`}
+                                        ref={priceDiscounts}
+                                        key={`price-discounts`}
                                         type="number"
-                                        defaultValue={discount}
-                                        onChange={(e) => setDiscount(e.target.value)}
+                                        defaultValue={discounts}
+                                        onChange={(e) => setDiscounts(e.target.value)}
                                         className="w-full bg-seasalt" />
                                 </div>
                             </td>
@@ -645,7 +612,7 @@ export default function ReceiptData() {
                                 <div className="flex flex-row gap-2 font-light">
                                     <input
                                         type="checkbox"
-                                        defaultChecked={discountExcluded}
+                                        defaultChecked={discountsExcluded}
                                         onChange={(e) => {
                                             setDiscountExcluded(e.target.checked);
                                         }}

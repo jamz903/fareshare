@@ -70,9 +70,7 @@ export default function ViewHistory() {
             })
             setPayments(newPayments);
         }
-        if (itemsToProcess.length > 0) {
-            processPayments();
-        }
+        processPayments(); // triggers rendering of payment summary list
     }, [data, includeDiscounts, includeServiceCharge, includeTax, itemsToProcess, paymentDiscounts, paymentServiceCharge, paymentTax]);
 
     const axiosConfig = {
@@ -96,7 +94,6 @@ export default function ViewHistory() {
         const result = await Promise.all(promises);
         const resultData = result[0].data;
         setData(resultData);
-        console.log(resultData);
         setLoading(false);
     }
 
@@ -105,6 +102,7 @@ export default function ViewHistory() {
     }
 
     const openDialog = (receiptId) => {
+        setPayments([]);
         setCopied(false);
         setIncludeTax(false);
         setIncludeServiceCharge(false);
@@ -113,7 +111,6 @@ export default function ViewHistory() {
         setPaymentTax(receipt.tax);
         setPaymentServiceCharge(receipt.service_charge);
         setPaymentDiscounts(receipt.discounts);
-        clearReceiptPayments();
         fetchReceiptPayments(receiptId);
         dialogRef.current.showModal();
     }
@@ -142,10 +139,6 @@ export default function ViewHistory() {
         setItemsToProcess(items);
     }
 
-    const clearReceiptPayments = () => {
-        setPayments([]);
-    }
-
     const copyPaymentsToClipboard = () => {
         const text = payments.map(payment => {
             return `${payment.username}: ${payment.amount.toFixed(2)}`;
@@ -158,11 +151,66 @@ export default function ViewHistory() {
     const paymentItemList = () => {
         const arr = payments.map(payment => {
             return <ViewHistoryPaymentItem key={payment.username} username={payment.username} amount={payment.amount} />
-        })
-        if (arr.length > 0) {
-            return arr;
+        });
+        const splitter =
+            <div className='flex flex-row justify-between text-sm font-light items-center'>
+                <div className='font-semibold'>
+                    Include:
+                </div>
+                <div className='flex flex-row gap-1'>
+                    <input type='checkbox' onChange={(e) => {
+                        setIncludeTax(e.target.checked);
+                    }} />
+                    <div>
+                        Tax
+                    </div>
+                </div>
+                <div className='flex flex-row gap-1'>
+                    <input type='checkbox' onChange={(e) => {
+                        setIncludeServiceCharge(e.target.checked);
+                    }} />
+                    <div>
+                        Svc
+                    </div>
+                </div>
+                <div className='flex flex-row gap-1'>
+                    <input type='checkbox' checked={includeDiscounts} onChange={(e) => {
+                        setIncludeDiscounts(e.target.checked);
+                    }} />
+                    <div>
+                        Discounts
+                    </div>
+                </div>
+            </div>
+        const extras =
+            <div>
+                <ViewHistoryExtrasItem name='Tax' amount={paymentTax} />
+                <ViewHistoryExtrasItem name='Service Charge' amount={paymentServiceCharge} />
+                <ViewHistoryExtrasItem name='Discounts' amount={paymentDiscounts} />
+            </div>
+        const copyButton =
+            <SmallButton className='px-4 w-full' onClick={copyPaymentsToClipboard}>
+                {copied ? "Copied!" : "Copy to Clipboard"}
+            </SmallButton>
+        const closeButton =
+            <SmallButton className='px-4 w-full' onClick={closeDialog}>
+                Close
+            </SmallButton>
+        if (arr.length === 0) {
+            return <div className='flex flex-col gap-3 w-full'>
+                <div className='font-light text-sm'>
+                    No payments to display. <br />
+                    Add items to your receipt and assign them to users to see the payment summary.
+                </div>
+                {closeButton}
+            </div>
         } else {
-            return <div className='text-sm font-light'>No payments to show. Assign users to your receipt items!</div>
+            return <div className='flex flex-col gap-2 w-full'>
+                {arr}
+                {splitter}
+                {extras}
+                {copyButton}
+            </div>
         }
     }
 
@@ -181,48 +229,13 @@ export default function ViewHistory() {
                     </div>
                     {
                         loadingReceipt ?
-                            <LightSpinner /> :
-                            <div className='flex flex-col gap-2 w-full'>
-                                {paymentItemList()}
-                                < hr />
-                                <div className='flex flex-row justify-between text-sm font-light items-center'>
-                                    <div className='font-semibold'>
-                                        Split:
-                                    </div>
-                                    <div className='flex flex-row gap-1'>
-                                        <input type='checkbox' onChange={(e) => {
-                                            setIncludeTax(e.target.checked);
-                                        }} />
-                                        <div>
-                                            Tax
-                                        </div>
-                                    </div>
-                                    <div className='flex flex-row gap-1'>
-                                        <input type='checkbox' onChange={(e) => {
-                                            setIncludeServiceCharge(e.target.checked);
-                                        }} />
-                                        <div>
-                                            Svc
-                                        </div>
-                                    </div>
-                                    <div className='flex flex-row gap-1'>
-                                        <input type='checkbox' checked={includeDiscounts} onChange={(e) => {
-                                            setIncludeDiscounts(e.target.checked);
-                                        }} />
-                                        <div>
-                                            Discounts
-                                        </div>
-                                    </div>
-                                </div>
+                            <div className='flex flex-row gap-3'>
+                                <LightSpinner />
                                 <div>
-                                    <ViewHistoryExtrasItem name='Tax' amount={paymentTax} />
-                                    <ViewHistoryExtrasItem name='Service Charge' amount={paymentServiceCharge} />
-                                    <ViewHistoryExtrasItem name='Discounts' amount={paymentDiscounts} />
+                                    Loading...
                                 </div>
-                                <SmallButton className='px-4 w-full' onClick={copyPaymentsToClipboard}>
-                                    {copied ? "Copied!" : "Copy to Clipboard"}
-                                </SmallButton>
-                            </div>
+                            </div> :
+                            paymentItemList()
                     }
                 </div>
             </dialog>

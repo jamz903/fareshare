@@ -97,12 +97,16 @@ class ReceiptDataView(APIView):
             return Response({"error": "Invalid receipt id"}, status=status.HTTP_400_BAD_REQUEST)
         receipt = query[0]
         receipt.my_expenses = data['my_expenses']
-        receipt.save()
-        # receipt fields
         processed_data = json.loads(data['processed_data'])
+        print(processed_data)
+        receipt.tax = processed_data['other']['tax']
+        receipt.service_charge = processed_data['other']['serviceCharge']
+        receipt.discounts = processed_data['other']['discounts']
+        receipt.save()
+
+        # save receipt items
         ids_to_delete = json.loads(data['ids_to_delete'])
         receipt_items = processed_data['items'] # array containing receipt items
-        other = processed_data['other'] # object containing other relevant data such as total, tax, etc.
         # delete receipt items
         ReceiptItem.objects.filter(id__in=ids_to_delete).delete()
         # save receipt items
@@ -158,8 +162,12 @@ class ReceiptItemByReceiptView(APIView):
         # get items from receipt
         receipt = query[0]
         receipt_items = ReceiptItem.objects.filter(receipt=receipt)
+        tax = receipt.tax
+        service_charge = receipt.service_charge
+        discounts = receipt.discounts
+        other = {"tax": tax, "serviceCharge": service_charge, "discounts": discounts}
         serializer = ReceiptItemSerializer(receipt_items, many=True)
-        return JsonResponse(data={"items": serializer.data, "id": receipt.pk, "name": receipt.name}, status=status.HTTP_200_OK)
+        return JsonResponse(data={"items": serializer.data, "other": other, "id": receipt.pk, "name": receipt.name}, status=status.HTTP_200_OK)
 
 class ReceiptItemByUserView(APIView):
     # obtain receipt items for a certain user

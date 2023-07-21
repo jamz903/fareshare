@@ -17,7 +17,7 @@ export const PAYMENTMETHOD = {
  *    - total: (Number) total of the receipt
  *    - tax: (Number) tax of the receipt
  *    - serviceCharge: (Number) service charge of the receipt
- *    - discount: (Number) total discount of the receipt
+ *    - discounts: (Number) total discounts of the receipt
  *    - paymentMethod: (String) payment method of the receipt
  *    - paidAmount: (Number) paid amount of the receipt
  *    - change: (Number) change of the receipt
@@ -30,7 +30,7 @@ function receiptJsonParser(receipt) {
         total: 0,
         tax: 0,
         serviceCharge: 0,
-        discount: 0,
+        discounts: 0,
         paymentMethod: PAYMENTMETHOD.UNDEFINED,
         paidAmount: 0,
         change: 0,
@@ -71,7 +71,7 @@ function receiptJsonParser(receipt) {
         return regex.test(line);
     }
 
-    const hasDiscount = (line) => {
+    const hasDiscounts = (line) => {
         const regex1 = RegExp(/discount/, 'i');
         const regex2 = RegExp(/promo/, 'i');
         const regex3 = RegExp(/voucher/, 'i');
@@ -209,7 +209,7 @@ function receiptJsonParser(receipt) {
             other.paidAmount = other.paidAmount - other.change;
         }
     });
-    // 2. Iterate through receipt to find subtotal, total, tax, service charge, and discount, and remove them from the receipt
+    // 2. Iterate through receipt to find subtotal, total, tax, service charge, and discounts, and remove them from the receipt
     //    This step acts like a blacklist, removing all lines that are not purchased items
     Object.keys(receiptLines).forEach((key) => {
         const line = receiptLines[key];
@@ -240,10 +240,10 @@ function receiptJsonParser(receipt) {
                     other.serviceCharge = parseFloat(priceArr[0]);
                 }
                 receiptLines[key] = null;
-            } else if (hasDiscount(line)) {
+            } else if (hasDiscounts(line)) {
                 const priceArr = line.match(priceRegex);
                 if (priceArr != null) {
-                    other.discount = parseFloat(priceArr[0]);
+                    other.discounts = parseFloat(priceArr[0]);
                 }
                 receiptLines[key] = null;
             }
@@ -374,7 +374,7 @@ function receiptJsonParser(receipt) {
         }
 
         // basically dynamically program all results:
-        // +(total/subtotal/paidAmount) +-(discount) +-(serviceCharge + tax) 
+        // +(total/subtotal/paidAmount) +-(discounts) +-(serviceCharge + tax) 
 
         const baseValues = [];
         if (other.total !== 0) {
@@ -387,12 +387,12 @@ function receiptJsonParser(receipt) {
             baseValues.push(other.paidAmount);
         }
 
-        const discountValues = [];
-        if (other.discount !== 0) {
-            discountValues.push(other.discount);
-            discountValues.push(-other.discount);
+        const discountsValues = [];
+        if (other.discounts !== 0) {
+            discountsValues.push(other.discounts);
+            discountsValues.push(-other.discounts);
         }
-        discountValues.push(0);
+        discountsValues.push(0);
 
         const svcValues = [];
         if (other.serviceCharge !== 0) {
@@ -411,10 +411,10 @@ function receiptJsonParser(receipt) {
         // obtain an array of results where the target is hit
         const results = [];
         baseValues.forEach((base) => {
-            discountValues.forEach((discount) => {
+            discountsValues.forEach((discounts) => {
                 svcValues.forEach((svc) => {
                     taxValues.forEach((tax) => {
-                        const targetPrice = base + discount + svc + tax;
+                        const targetPrice = base + discounts + svc + tax;
                         const obtained = findTarget(purchasedItems, targetPrice);
                         if (obtained != null && obtained.length > 0) {
                             results.push(obtained);

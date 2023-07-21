@@ -30,11 +30,11 @@ export default function ViewHistoryItem({ receiptData, deleteReceipt = (id) => {
     }
 
     return (
-        <div className='w-full flex flex-row drop-shadow'>
+        <div className='w-full h-full flex flex-row drop-shadow'>
             <button key={receiptId}
                 onClick={(e) => handleClick(receiptId)}
-                className="block grow rounded-l-lg p-4 bg-seasalt border border-slate-200 border-r-transparent cursor-pointer hover:border-primary active:drop-shadow-none">
-                <div className='w-full text-start font-semibold break-words'>
+                className="w-full overflow-clip rounded-l-lg p-4 bg-seasalt border border-slate-200 border-r-transparent cursor-pointer hover:border-primary active:drop-shadow-none">
+                <div className='text-start font-semibold break-words overflow-clip'>
                     {receiptName}
                 </div>
                 <div className='text-start font-light'>
