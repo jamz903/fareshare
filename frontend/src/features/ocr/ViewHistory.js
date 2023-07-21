@@ -218,7 +218,7 @@ export default function ViewHistory() {
         <NavBarLayout navBarText="Receipts" className="text-sm">
             <CSRFToken />
             <dialog ref={dialogRef} className="w-[80%] sm:w-[60%] max-h-[60%] rounded-lg drop-shadow" onClick={closeDialog}>
-                <div className='w-full h-full' onClick={stopPropagation}>
+                <div className='w-full h-full min-h-fit' onClick={stopPropagation}>
                     <div className='flex flex-row justify-between items-center pb-2'>
                         <div className='text-lg'>
                             Payment Summary
