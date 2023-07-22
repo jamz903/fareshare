@@ -25,7 +25,7 @@ if (args["type"] == "online"):
     img = cv2.imread(args["image"])
     filename = "{}.png".format(os.getpid())
     cv2.imwrite(filename, img)
-    configuration = ("-l eng --oem 1 --psm 3")
+    configuration = ("-l eng --oem 1 --psm 4")
     text = pytesseract.image_to_string(Image.open(filename), config=configuration)
 
 else:
