@@ -44,7 +44,7 @@ deactivate
 ```
 _note: remember to run these commands while you are still in the virtual env_
 
-## Milestone 2
+## Milestone 3
 #### Level of Achievement: Apollo 11
 
 ### The Problem
