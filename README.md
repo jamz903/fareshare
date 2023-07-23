@@ -66,7 +66,7 @@ FareShare is a bill splitting app that helps **students** automatically **split 
 - be able to create a user
 - be able to login
 
-#### July (Milestone 3)
+#### June (Milestone 2)
 ##### UI + Core Features (Completed Features)
 1. Authentication
 - store user data in MySQL database
