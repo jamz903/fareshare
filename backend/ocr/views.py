@@ -177,3 +177,20 @@ class ReceiptItemByUserView(APIView):
         receipt_items = user.receiptitem_set.all()
         serializer = ReceiptItemSerializer(receipt_items, many=True)
         return Response(status=status.HTTP_200_OK, data=serializer.data)
+    
+class DeleteReceiptView(APIView):
+    # delete receipt with a certain id
+    def post(self, request, *args, **kwargs):
+        data = request.data
+        id = data.get('id')
+        # validate request
+        if id is None:
+            return Response({"error": "No receipt id provided"}, status=status.HTTP_400_BAD_REQUEST)
+        # check if receipt exists
+        query = Receipt.objects.filter(pk=id)
+        if len(query) == 0:
+            return Response({"error": "Receipt not found"}, status=status.HTTP_404_NOT_FOUND)
+        # delete receipt
+        receipt = query[0]
+        receipt.delete()
+        return Response({"success": "Receipt deleted successfully"}, status=status.HTTP_200_OK)

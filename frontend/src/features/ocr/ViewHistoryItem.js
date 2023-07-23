@@ -1,11 +1,14 @@
 import { ClipboardDocumentListIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { useNavigate } from "react-router-dom";
+import { DarkSpinner } from "../../components/Spinner";
+import { useState } from "react";
 
 export default function ViewHistoryItem({ receiptData, deleteReceipt = (id) => { }, showPayments = (id) => { } }) {
     const navigate = useNavigate();
     const receiptId = receiptData.id;
     const receiptName = receiptData.name ? receiptData.name : `Receipt ${receiptId}`;
     const myExpenses = receiptData.my_expenses ? receiptData.my_expenses : 0;
+    const [deleting, setDeleting] = useState(false);
 
     if (!receiptData || !receiptData.id) {
         // cannot be null!
@@ -17,6 +20,7 @@ export default function ViewHistoryItem({ receiptData, deleteReceipt = (id) => {
         if (window.confirm(`Are you sure you want to delete this receipt?`)) {
             // delete receipt
             // callback
+            setDeleting(true);
             deleteReceipt(id);
         }
     }
@@ -52,9 +56,10 @@ export default function ViewHistoryItem({ receiptData, deleteReceipt = (id) => {
                 <ClipboardDocumentListIcon className="h-5 w-5 text-primary" />
             </button>
             <button key={`delete-${receiptId}}`}
+                disabled={deleting}
                 onClick={(e) => { handleDelete(receiptId) }}
                 className="block rounded-r-lg p-4 bg-seasalt border border-slate-200 cursor-pointer hover:border-primary active:drop-shadow-none">
-                <TrashIcon className="h-5 w-5 text-red" />
+                {deleting ? <DarkSpinner length={5} /> : <TrashIcon className="h-5 w-5 text-red" />}
             </button>
         </div>
     )

@@ -2,7 +2,7 @@
 import NavBarLayout from "../../../layouts/NavBarLayout";
 import { ShoppingCartIcon, CurrencyDollarIcon, HashtagIcon, UserIcon, XMarkIcon, HeartIcon, BanknotesIcon, ReceiptPercentIcon, TrashIcon, SquaresPlusIcon } from "@heroicons/react/24/outline";
 import Button from "../../../components/Buttons/Button";
-import { LightSpinner } from "../../../components/Spinner";
+import { DarkSpinner, LightSpinner } from "../../../components/Spinner";
 import ReceiptDataRow from "./ReceiptDataRow";
 import TableButton from "./TableButton";
 // other
@@ -40,6 +40,8 @@ export default function ReceiptData() {
     const location = useLocation();
     const receiptId = location.state.id;
     const username = useSelector(state => state.auth.username);
+    const [friendsLoaded, setFriendsLoaded] = useState(false);
+    const [itemsLoaded, setItemsLoaded] = useState(false);
     // friends
     const [friends, setFriends] = useState([]);
     // items
@@ -85,6 +87,7 @@ export default function ReceiptData() {
                 friend.colorSet = obtainRandomColorSet();
             });
             setFriends(friendList);
+            setFriendsLoaded(true);
         }
 
         const getReceiptData = async () => {
@@ -128,19 +131,25 @@ export default function ReceiptData() {
             setTax(newReceiptData.other.tax);
             setServiceCharge(newReceiptData.other.serviceCharge);
             setDiscounts(newReceiptData.other.discounts);
+            setItemsLoaded(true);
         }
 
-        if (location.state.receiptData) {
-            const items = location.state.receiptData.items;
-            const other = location.state.receiptData.other;
-            setItems(items);
-            setTax(other.tax);
-            setServiceCharge(other.serviceCharge);
-            setDiscounts(other.discounts);
-        } else {
-            getReceiptData();
+        if (!itemsLoaded) {
+            if (location.state.receiptData) {
+                const items = location.state.receiptData.items;
+                const other = location.state.receiptData.other;
+                setItems(items);
+                setTax(other.tax);
+                setServiceCharge(other.serviceCharge);
+                setDiscounts(other.discounts);
+                setItemsLoaded(true);
+            } else {
+                getReceiptData();
+            }
         }
-        getFriends();
+        if (!friendsLoaded) {
+            getFriends();
+        }
 
         // update tax, service charge, and discounts values
         if (tax) {
@@ -152,7 +161,7 @@ export default function ReceiptData() {
         if (discounts) {
             priceDiscounts.current.value = discounts;
         }
-    }, [receiptId, username, location.state.receiptData, discounts, serviceCharge, tax]);
+    }, [receiptId, username, location.state.receiptData, discounts, serviceCharge, tax, friendsLoaded, itemsLoaded]);
 
     const calculateExclusionText = () => {
         const textArr = [];
@@ -366,6 +375,14 @@ export default function ReceiptData() {
 
     return (
         <NavBarLayout navBarText="Receipt" className="text-sm">
+            {
+                friendsLoaded && itemsLoaded ? null :
+                    <div className="flex flex-row gap-2 pb-5">
+                        <DarkSpinner />
+                        Loading receipt data...
+                    </div>
+            }
+
             {
                 dataRowIndexDropdownOpen !== -1 ?
                     <div className="absolute z-10 top-0 left-0 right-0 bottom-0 w-full h-full" onClick={closeAllDropdowns}></div> : null
@@ -682,10 +699,12 @@ export default function ReceiptData() {
                         </tr>
                     </tbody>
                 </table>
-                <Button className="" onClick={debounce(saveData)} disabled={saving}>{
+                <Button className="" onClick={debounce(saveData)} disabled={saving || (!friendsLoaded && !itemsLoaded)}>{
                     saving ?
                         <LightSpinner length={5} />
-                        : "Save"
+                        : (!friendsLoaded && !itemsLoaded) ?
+                            "Loading Receipt..."
+                            : "Save"
                 }</Button>
             </div>
 

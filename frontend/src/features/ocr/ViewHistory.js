@@ -5,7 +5,7 @@
 import React from 'react';
 import NavBarLayout from '../../layouts/NavBarLayout';
 import axios from 'axios';
-import { DarkSpinner, LightSpinner } from '../../components/Spinner';
+import { DarkSpinner } from '../../components/Spinner';
 import ViewHistoryItem from './ViewHistoryItem';
 import ViewHistoryPaymentItem from './ViewHistoryPaymentItem';
 import { XMarkIcon } from '@heroicons/react/24/outline';
@@ -16,7 +16,7 @@ import CSRFToken from '../../components/CSRFToken';
 
 export default function ViewHistory() {
     const [data, setData] = React.useState([]);
-    const [loading, setLoading] = React.useState(false);
+    const [loading, setLoading] = React.useState(true);
     const [errorMessage, setErrorMessage] = React.useState("");
 
     // payment summary dialog
@@ -34,7 +34,7 @@ export default function ViewHistory() {
 
     React.useEffect(() => {
         // fetch data
-        if (data.length === 0) {
+        if (loading === true) {
             fetchData();
         }
 
@@ -71,7 +71,7 @@ export default function ViewHistory() {
             setPayments(newPayments);
         }
         processPayments(); // triggers rendering of payment summary list
-    }, [data, includeDiscounts, includeServiceCharge, includeTax, itemsToProcess, paymentDiscounts, paymentServiceCharge, paymentTax]);
+    }, [loading, data, includeDiscounts, includeServiceCharge, includeTax, itemsToProcess, paymentDiscounts, paymentServiceCharge, paymentTax]);
 
     const axiosConfig = {
         headers: {
@@ -82,7 +82,6 @@ export default function ViewHistory() {
     }
 
     const fetchData = async () => {
-        setLoading(true);
         const promises = [];
         const response = axios(`/ocr/upload/`)
             .then(res => res)
@@ -98,7 +97,19 @@ export default function ViewHistory() {
     }
 
     const deleteReceipt = (receiptId) => {
-        console.log('delete receipt', receiptId)
+        axios.post(`/ocr/delete_receipt/`, { id: receiptId }, axiosConfig)
+            .then(res => {
+                if (res.data.success) {
+                    const newData = data.filter(receipt => receipt.id !== receiptId);
+                    setData(newData);
+                }
+            }).catch(err => {
+                if (err.response.data.message) {
+                    alert(err.response.data.message);
+                } else {
+                    alert('Error deleting receipt');
+                }
+            });
     }
 
     const openDialog = (receiptId) => {
@@ -217,7 +228,7 @@ export default function ViewHistory() {
     return (
         <NavBarLayout navBarText="Receipts" className="text-sm">
             <CSRFToken />
-            <dialog ref={dialogRef} className="w-[80%] sm:w-[60%] max-h-[60%] rounded-lg drop-shadow" onClick={closeDialog}>
+            <dialog ref={dialogRef} className="w-[80%] sm:w-[60%] max-h-[60%] rounded-lg drop-shadow bg-seasalt" onClick={closeDialog}>
                 <div className='w-full h-full min-h-fit' onClick={stopPropagation}>
                     <div className='flex flex-row justify-between items-center pb-2'>
                         <div className='text-lg'>
@@ -230,7 +241,7 @@ export default function ViewHistory() {
                     {
                         loadingReceipt ?
                             <div className='flex flex-row gap-3'>
-                                <LightSpinner />
+                                <DarkSpinner />
                                 <div>
                                     Loading...
                                 </div>
